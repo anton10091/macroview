@@ -6,95 +6,72 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 
-// ── РЕЙТИНГОВАЯ ФОРМУЛА ───────────────────────────────────────────────────
-
 function calcMacroScore(gdp, inflation, rate) {
   let score = 0;
-  // ВВП
   if (gdp > 4) score += 5;
   else if (gdp > 2) score += 3;
   else if (gdp > 0) score += 2;
   else score += 1;
-  // Инфляция
   if (inflation >= 1 && inflation <= 3) score += 5;
   else if (inflation > 0 && inflation < 1) score += 4;
   else if (inflation >= 3 && inflation <= 5) score += 3;
-  else if (inflation > 5 && inflation <= 7) score += 2;
   else score += 1;
-  // Реальная ставка (ставка - инфляция)
   const realRate = rate - inflation;
   if (realRate > 0 && realRate < 3) score += 5;
   else if (realRate >= 3) score += 3;
   else score += 2;
-  return score / 15; // нормализуем 0..1
+  return score / 15;
 }
 
-function calcRealEstateScore(yield_, priceGrowth) {
+function calcRealEstateScore(y, pg) {
   let score = 0;
-  if (yield_ >= 6) score += 5;
-  else if (yield_ >= 4) score += 3;
+  if (y >= 6) score += 5;
+  else if (y >= 4) score += 3;
   else score += 1;
-  if (priceGrowth > 2 && priceGrowth < 10) score += 5;
-  else if (priceGrowth >= 10) score += 2; // перегрев
+  if (pg > 2 && pg < 10) score += 5;
+  else if (pg >= 10) score += 2;
   else score += 3;
   return score / 10;
 }
 
-function calcEquityScore(pe, divYield, indexChange) {
+function calcEquityScore(pe, div, idx) {
   let score = 0;
   if (pe < 12) score += 5;
   else if (pe < 16) score += 4;
   else if (pe < 20) score += 3;
   else score += 1;
-  if (divYield >= 4) score += 5;
-  else if (divYield >= 3) score += 4;
-  else if (divYield >= 2) score += 3;
+  if (div >= 4) score += 5;
+  else if (div >= 3) score += 4;
+  else if (div >= 2) score += 3;
   else score += 1;
-  if (indexChange > 5) score += 5;
-  else if (indexChange > 0) score += 3;
-  else if (indexChange > -10) score += 2;
+  if (idx > 5) score += 5;
+  else if (idx > 0) score += 3;
+  else if (idx > -10) score += 2;
   else score += 1;
   return score / 15;
 }
 
-function calcOverallRating(macro, realestate, equity) {
-  const weighted = macro * 0.30 + realestate * 0.35 + equity * 0.35;
-  if (weighted >= 0.65) return { label: 'Позитивно', color: '#2a7a4a', bg: '#dff0e8' };
-  if (weighted >= 0.40) return { label: 'Нейтрально', color: '#b08c3a', bg: '#f5edda' };
+function calcRating(macro, re, eq) {
+  const w = macro * 0.30 + re * 0.35 + eq * 0.35;
+  if (w >= 0.65) return { label: 'Позитивно', color: '#2a7a4a', bg: '#dff0e8' };
+  if (w >= 0.40) return { label: 'Нейтрально', color: '#b08c3a', bg: '#f5edda' };
   return { label: 'Осторожно', color: '#c8622a', bg: '#f5e8df' };
 }
 
-// ── СТАТИЧНЫЕ ДАННЫЕ (EPPO, SET, Недвижимость) ────────────────────────────
+const STATIC = { rate: 2.50, reYield: 5.0, priceGrowth: 4.0, pe: 15, div: 3.5, idxChange: -4.5 };
 
 const energyData = [
-  { y: '2018', twh: 187.6 },
-  { y: '2019', twh: 190.1 },
-  { y: '2020', twh: 177.4 },
-  { y: '2021', twh: 181.0 },
-  { y: '2022', twh: 186.5 },
-  { y: '2023', twh: 213.0 },
-  { y: '2024', twh: 225.0 },
+  { y: '2018', twh: 187.6 }, { y: '2019', twh: 190.1 }, { y: '2020', twh: 177.4 },
+  { y: '2021', twh: 181.0 }, { y: '2022', twh: 186.5 }, { y: '2023', twh: 213.0 }, { y: '2024', twh: 225.0 },
 ];
-
 const propData = [
-  { y: '2019', idx: 100 },
-  { y: '2020', idx: 97 },
-  { y: '2021', idx: 99 },
-  { y: '2022', idx: 103 },
-  { y: '2023', idx: 108 },
-  { y: '2024', idx: 112 },
+  { y: '2019', idx: 100 }, { y: '2020', idx: 97 }, { y: '2021', idx: 99 },
+  { y: '2022', idx: 103 }, { y: '2023', idx: 108 }, { y: '2024', idx: 112 },
 ];
-
 const setData = [
-  { y: '2018', idx: 1563 },
-  { y: '2019', idx: 1580 },
-  { y: '2020', idx: 1299 },
-  { y: '2021', idx: 1658 },
-  { y: '2022', idx: 1669 },
-  { y: '2023', idx: 1416 },
-  { y: '2024', idx: 1482 },
+  { y: '2018', idx: 1563 }, { y: '2019', idx: 1580 }, { y: '2020', idx: 1299 },
+  { y: '2021', idx: 1658 }, { y: '2022', idx: 1669 }, { y: '2023', idx: 1416 }, { y: '2024', idx: 1482 },
 ];
-
 const fuelMix = [
   { name: 'Природный газ', value: 57, color: '#2a4a8a' },
   { name: 'Уголь/лигнит', value: 21, color: '#c8622a' },
@@ -102,22 +79,10 @@ const fuelMix = [
   { name: 'Прочее', value: 2, color: '#9a948e' },
 ];
 
-// Константы для рейтинга (обновляются вместе с API)
-const STATIC = {
-  rate: 2.50,
-  realEstateYield: 5.0,
-  priceGrowth: 4.0,
-  pe: 15,
-  divYield: 3.5,
-  indexChange: -4.5, // SET за 2024
-};
-
-// ── UI КОМПОНЕНТЫ ─────────────────────────────────────────────────────────
-
 const TT = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: '#fff', border: '1px solid #e8e2d9', borderRadius: 8, padding: '10px 14px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
+    <div style={{ background: '#fff', border: '1px solid #e8e2d9', borderRadius: 8, padding: '10px 14px' }}>
       <p style={{ fontFamily: 'monospace', fontSize: 10, color: '#9a948e', margin: '0 0 4px' }}>{label}</p>
       {payload.map((p, i) => (
         <p key={i} style={{ fontFamily: 'monospace', fontSize: 12, color: p.color, margin: '2px 0' }}>
@@ -138,7 +103,6 @@ const Kpi = ({ label, value, unit, delta, deltaPos, color }) => (
   </div>
 );
 
-// Полоска с баллом блока рейтинга
 const RatingBar = ({ label, score, color }) => {
   const pct = Math.round(score * 100);
   return (
@@ -148,14 +112,13 @@ const RatingBar = ({ label, score, color }) => {
         <span style={{ fontFamily: 'monospace', fontSize: 12, fontWeight: 700, color }}>{pct}/100</span>
       </div>
       <div style={{ background: '#f0ebe3', borderRadius: 4, height: 7 }}>
-        <div style={{ width: `${pct}%`, background: color, height: '100%', borderRadius: 4, transition: 'width 0.8s ease' }} />
+        <div style={{ width: `${pct}%`, background: color, height: '100%', borderRadius: 4 }} />
       </div>
     </div>
   );
 };
 
-// Tooltip для рейтинга
-const RatingTooltip = ({ rating }) => {
+const RatingBadge = ({ rating }) => {
   const [show, setShow] = useState(false);
   return (
     <div style={{ position: 'relative', display: 'inline-block' }}>
@@ -167,27 +130,24 @@ const RatingTooltip = ({ rating }) => {
           border: `1px solid ${rating.color}40`,
           borderRadius: 6, padding: '4px 10px',
           fontFamily: 'monospace', fontSize: 11,
-          cursor: 'help', userSelect: 'none',
-          display: 'flex', alignItems: 'center', gap: 5,
+          cursor: 'help', display: 'flex', alignItems: 'center', gap: 5,
         }}
       >
-        {rating.label}
-        <span style={{ fontSize: 10, opacity: 0.6 }}>ⓘ</span>
+        {rating.label} <span style={{ fontSize: 10, opacity: 0.6 }}>ⓘ</span>
       </div>
       {show && (
         <div style={{
-          position: 'absolute', top: '110%', left: 0, zIndex: 50,
-          background: '#1a1612', color: '#f5f2ee',
-          borderRadius: 8, padding: '10px 14px',
-          fontSize: 12, fontFamily: 'monospace',
-          width: 240, lineHeight: 1.6,
-          boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+          position: 'absolute', top: '110%', left: '50%', transform: 'translateX(-50%)',
+          zIndex: 50, background: '#1a1612', color: '#f5f2ee',
+          borderRadius: 8, padding: '12px 16px', fontSize: 12,
+          fontFamily: 'monospace', width: 260, lineHeight: 1.6,
+          boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
         }}>
           <p style={{ margin: '0 0 6px', fontWeight: 700, color: '#fff' }}>Рейтинг инвест. привлекательности</p>
-          <p style={{ margin: '0 0 4px', color: '#ccc' }}>Считается автоматически по формуле:</p>
+          <p style={{ margin: '0 0 4px', color: '#ccc' }}>Считается автоматически:</p>
           <p style={{ margin: '0 0 2px', color: '#aaa' }}>• Макро (ВВП, инфляция, ставка) — 30%</p>
           <p style={{ margin: '0 0 2px', color: '#aaa' }}>• Недвижимость (доходность, цены) — 35%</p>
-          <p style={{ margin: '0 0 6px', color: '#aaa' }}>• Фондовый рынок (P/E, дивиденды) — 35%</p>
+          <p style={{ margin: '0 0 8px', color: '#aaa' }}>• Фондовый рынок (P/E, дивиденды) — 35%</p>
           <p style={{ margin: 0, color: rating.color, fontWeight: 700 }}>Итог: {rating.label}</p>
         </div>
       )}
@@ -195,13 +155,11 @@ const RatingTooltip = ({ rating }) => {
   );
 };
 
-// ── ГЛАВНЫЙ КОМПОНЕНТ ─────────────────────────────────────────────────────
-
 export default function ThailandPage() {
   const [tab, setTab] = useState('macro');
   const [macroData, setMacroData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState('');
   const [isNew, setIsNew] = useState(false);
   const [latestGdp, setLatestGdp] = useState(2.6);
   const [latestInflation, setLatestInflation] = useState(0.4);
@@ -216,56 +174,38 @@ export default function ThailandPage() {
           fetch('https://api.worldbank.org/v2/country/TH/indicator/FP.CPI.TOTL.ZG?format=json&mrv=8'),
         ]);
         const [gdpJson, inflJson] = await Promise.all([gdpRes.json(), inflRes.json()]);
-
         const gdpMap = {};
         gdpJson[1]?.forEach(d => { if (d.value !== null) gdpMap[d.date] = parseFloat(d.value.toFixed(1)); });
         const inflMap = {};
         inflJson[1]?.forEach(d => { if (d.value !== null) inflMap[d.date] = parseFloat(d.value.toFixed(1)); });
-
         const years = [...new Set([...Object.keys(gdpMap), ...Object.keys(inflMap)])].sort();
-        const combined = years.map(y => ({ y, gdp: gdpMap[y] ?? null, inflation: inflMap[y] ?? null }));
-        setMacroData(combined);
-
-        // Последние значения для рейтинга
-        const gdpVals = gdpJson[1]?.filter(d => d.value !== null);
-        const inflVals = inflJson[1]?.filter(d => d.value !== null);
-        const newGdp = gdpVals?.[0]?.value ?? 2.6;
-        const newInfl = inflVals?.[0]?.value ?? 0.4;
-        setLatestGdp(parseFloat(newGdp.toFixed(1)));
-        setLatestInflation(parseFloat(newInfl.toFixed(1)));
-
-        // Считаем рейтинг
-        const macroScore = calcMacroScore(newGdp, newInfl, STATIC.rate);
-        const reScore = calcRealEstateScore(STATIC.realEstateYield, STATIC.priceGrowth);
-        const eqScore = calcEquityScore(STATIC.pe, STATIC.divYield, STATIC.indexChange);
-        setScores({ macro: macroScore, re: reScore, eq: eqScore });
-        setRating(calcOverallRating(macroScore, reScore, eqScore));
-
-        // Дата обновления
-        const now = new Date();
-        setLastUpdated(now.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }));
-
-        // Подсветка если данные свежие (в реальности сравнивали бы с кешем)
+        setMacroData(years.map(y => ({ y, gdp: gdpMap[y] ?? null, inflation: inflMap[y] ?? null })));
+        const gdp = gdpJson[1]?.find(d => d.value !== null)?.value ?? 2.6;
+        const infl = inflJson[1]?.find(d => d.value !== null)?.value ?? 0.4;
+        setLatestGdp(parseFloat(gdp.toFixed(1)));
+        setLatestInflation(parseFloat(infl.toFixed(1)));
+        const ms = calcMacroScore(gdp, infl, STATIC.rate);
+        const rs = calcRealEstateScore(STATIC.reYield, STATIC.priceGrowth);
+        const es = calcEquityScore(STATIC.pe, STATIC.div, STATIC.idxChange);
+        setScores({ macro: ms, re: rs, eq: es });
+        setRating(calcRating(ms, rs, es));
+        setLastUpdated(new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }));
         setIsNew(true);
         setTimeout(() => setIsNew(false), 5000);
-
-      } catch (e) {
-        // Фолбэк
-        setMacroData([
-          { y: '2018', gdp: 4.2, inflation: 1.1 },
-          { y: '2019', gdp: 2.2, inflation: 0.7 },
-          { y: '2020', gdp: -6.1, inflation: -0.8 },
-          { y: '2021', gdp: 1.5, inflation: 1.2 },
-          { y: '2022', gdp: 2.6, inflation: 6.1 },
-          { y: '2023', gdp: 1.9, inflation: 1.2 },
+      } catch {
+        const fallback = [
+          { y: '2018', gdp: 4.2, inflation: 1.1 }, { y: '2019', gdp: 2.2, inflation: 0.7 },
+          { y: '2020', gdp: -6.1, inflation: -0.8 }, { y: '2021', gdp: 1.5, inflation: 1.2 },
+          { y: '2022', gdp: 2.6, inflation: 6.1 }, { y: '2023', gdp: 1.9, inflation: 1.2 },
           { y: '2024', gdp: 2.6, inflation: 0.4 },
-        ]);
-        const macroScore = calcMacroScore(2.6, 0.4, STATIC.rate);
-        const reScore = calcRealEstateScore(STATIC.realEstateYield, STATIC.priceGrowth);
-        const eqScore = calcEquityScore(STATIC.pe, STATIC.divYield, STATIC.indexChange);
-        setScores({ macro: macroScore, re: reScore, eq: eqScore });
-        setRating(calcOverallRating(macroScore, reScore, eqScore));
-        setLastUpdated('данные недоступны');
+        ];
+        setMacroData(fallback);
+        const ms = calcMacroScore(2.6, 0.4, STATIC.rate);
+        const rs = calcRealEstateScore(STATIC.reYield, STATIC.priceGrowth);
+        const es = calcEquityScore(STATIC.pe, STATIC.div, STATIC.idxChange);
+        setScores({ macro: ms, re: rs, eq: es });
+        setRating(calcRating(ms, rs, es));
+        setLastUpdated('нет данных');
       }
       setLoading(false);
     };
@@ -285,35 +225,31 @@ export default function ThailandPage() {
     <div style={{ background: '#f5f2ee', minHeight: '100vh', fontFamily: 'Georgia, serif' }}>
       <Nav />
 
-     {/* Шапка страницы */}
-      <div style={{ background: '#fff', borderBottom: '1px solid #e8e2d9', padding: '28px 40px 24px', marginTop: 56 }}>
-        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+      <div style={{ background: '#fff', borderBottom: '1px solid #e8e2d9', marginTop: 56 }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto', padding: '28px 40px 24px' }}>
+
+          {/* Шапка по центру */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 20 }}>
 
-            {/* Флаг + название */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
               <span style={{ fontSize: 52 }}>🇹🇭</span>
               <h1 style={{ fontSize: 32, color: '#1a1612', margin: 0 }}>Таиланд</h1>
             </div>
 
-            {/* Метаданные по центру */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 14, flexWrap: 'wrap', justifyContent: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#9a948e' }}>Регион:</span>
-                <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#4a4540', fontWeight: 600 }}>Юго-Восточная Азия</span>
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
+              <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#9a948e' }}>
+                Регион: <span style={{ color: '#4a4540' }}>Юго-Восточная Азия</span>
+              </span>
               <span style={{ color: '#e8e2d9' }}>·</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#9a948e' }}>Рейтинг:</span>
-                {!loading && <RatingTooltip rating={rating} />}
-              </div>
+              <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#9a948e' }}>Рейтинг:</span>
+              {!loading && <RatingBadge rating={rating} />}
               <span style={{ color: '#e8e2d9' }}>·</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                 <div style={{
                   width: 7, height: 7, borderRadius: '50%',
                   background: isNew ? '#2a7a4a' : '#9a948e',
                   boxShadow: isNew ? '0 0 6px #2a7a4a' : 'none',
-                  transition: 'all 0.5s', flexShrink: 0,
+                  transition: 'all 0.5s',
                 }} />
                 <span style={{ fontFamily: 'monospace', fontSize: 11, color: isNew ? '#2a7a4a' : '#9a948e', transition: 'color 0.5s' }}>
                   {loading ? 'Загрузка...' : isNew ? `Обновлено ${lastUpdated}` : `Данные от ${lastUpdated}`}
@@ -321,31 +257,6 @@ export default function ThailandPage() {
               </div>
             </div>
 
-            {/* Мини-карточки рейтинга по центру */}
-            {!loading && (
-              <div style={{ display: 'flex', gap: 10, marginBottom: 4 }}>
-                {[
-                  { label: 'Макро', score: scores.macro, color: '#c8622a' },
-                  { label: 'Недвижимость', score: scores.re, color: '#2a7a4a' },
-                  { label: 'Акции', score: scores.eq, color: '#2a4a8a' },
-                ].map((s, i) => (
-                  <div key={i} style={{
-                    background: '#f5f2ee', border: '1px solid #e8e2d9',
-                    borderRadius: 8, padding: '8px 16px', textAlign: 'center',
-                    minWidth: 80,
-                  }}>
-                    <p style={{ fontFamily: 'monospace', fontSize: 9, color: '#9a948e', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{s.label}</p>
-                    <p style={{ fontFamily: 'monospace', fontSize: 18, fontWeight: 700, color: s.color, margin: 0 }}>
-                      {Math.round(s.score * 100)}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-            </div>
-
-            {/* Мини-карточки рейтинга справа */}
             {!loading && (
               <div style={{ display: 'flex', gap: 10 }}>
                 {[
@@ -355,13 +266,10 @@ export default function ThailandPage() {
                 ].map((s, i) => (
                   <div key={i} style={{
                     background: '#f5f2ee', border: '1px solid #e8e2d9',
-                    borderRadius: 8, padding: '8px 12px', textAlign: 'center',
-                    minWidth: 72,
+                    borderRadius: 8, padding: '8px 16px', textAlign: 'center', minWidth: 80,
                   }}>
                     <p style={{ fontFamily: 'monospace', fontSize: 9, color: '#9a948e', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{s.label}</p>
-                    <p style={{ fontFamily: 'monospace', fontSize: 16, fontWeight: 700, color: s.color, margin: 0 }}>
-                      {Math.round(s.score * 100)}
-                    </p>
+                    <p style={{ fontFamily: 'monospace', fontSize: 18, fontWeight: 700, color: s.color, margin: 0 }}>{Math.round(s.score * 100)}</p>
                   </div>
                 ))}
               </div>
@@ -369,7 +277,7 @@ export default function ThailandPage() {
           </div>
 
           {/* Табы */}
-          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'center' }}>
             {tabs.map(t => (
               <button key={t.id} onClick={() => setTab(t.id)} style={{
                 background: tab === t.id ? '#c8622a' : 'transparent',
@@ -391,7 +299,6 @@ export default function ThailandPage() {
           </div>
         )}
 
-        {/* ── МАКРО ── */}
         {!loading && tab === 'macro' && (
           <div>
             <p style={{ color: '#c8622a', fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.1em', margin: '0 0 4px', textTransform: 'uppercase' }}>Макроэкономика</p>
@@ -437,7 +344,6 @@ export default function ThailandPage() {
           </div>
         )}
 
-        {/* ── НЕДВИЖИМОСТЬ ── */}
         {!loading && tab === 'realestate' && (
           <div>
             <p style={{ color: '#2a7a4a', fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.1em', margin: '0 0 4px', textTransform: 'uppercase' }}>Недвижимость</p>
@@ -450,7 +356,7 @@ export default function ThailandPage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr', gap: 20, marginBottom: 28 }}>
               <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e8e2d9', padding: 20 }}>
-                <p style={{ fontFamily: 'monospace', fontSize: 11, color: '#9a948e', margin: '0 0 16px' }}>Индекс цен на недвижимость (2019 = 100)</p>
+                <p style={{ fontFamily: 'monospace', fontSize: 11, color: '#9a948e', margin: '0 0 16px' }}>Индекс цен (2019 = 100)</p>
                 <ResponsiveContainer width="100%" height={220}>
                   <AreaChart data={propData}>
                     <defs>
@@ -497,7 +403,6 @@ export default function ThailandPage() {
           </div>
         )}
 
-        {/* ── ФОНДОВЫЙ РЫНОК ── */}
         {!loading && tab === 'equity' && (
           <div>
             <p style={{ color: '#2a4a8a', fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.1em', margin: '0 0 4px', textTransform: 'uppercase' }}>Фондовый рынок</p>
@@ -535,7 +440,6 @@ export default function ThailandPage() {
           </div>
         )}
 
-        {/* ── ЭНЕРГЕТИКА ── */}
         {!loading && tab === 'energy' && (
           <div>
             <p style={{ color: '#b08c3a', fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.1em', margin: '0 0 4px', textTransform: 'uppercase' }}>Энергетика</p>
@@ -583,40 +487,25 @@ export default function ThailandPage() {
           </div>
         )}
 
-        {/* ── РЕЙТИНГ ── */}
         {!loading && tab === 'rating' && (
           <div>
             <p style={{ color: '#9a948e', fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.1em', margin: '0 0 4px', textTransform: 'uppercase' }}>Автоматический расчёт</p>
             <h2 style={{ fontSize: 22, color: '#1a1612', margin: '0 0 8px' }}>Рейтинг инвестиционной привлекательности</h2>
-            <p style={{ color: '#9a948e', fontSize: 13, fontFamily: 'monospace', margin: '0 0 32px' }}>
-              Пересчитывается автоматически при каждом обновлении данных из API
-            </p>
-
-            {/* Итоговый рейтинг */}
-            <div style={{
-              background: rating.bg, border: `1px solid ${rating.color}30`,
-              borderRadius: 16, padding: '28px 32px', marginBottom: 28,
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            }}>
+            <p style={{ color: '#9a948e', fontSize: 13, fontFamily: 'monospace', margin: '0 0 32px' }}>Пересчитывается при каждом обновлении данных из API</p>
+            <div style={{ background: rating.bg, border: `1px solid ${rating.color}30`, borderRadius: 16, padding: '28px 32px', marginBottom: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
                 <p style={{ fontFamily: 'monospace', fontSize: 11, color: rating.color, letterSpacing: '0.1em', margin: '0 0 8px', textTransform: 'uppercase' }}>Итоговый рейтинг</p>
                 <p style={{ fontSize: 36, fontWeight: 700, color: rating.color, margin: '0 0 8px', fontFamily: 'Georgia, serif' }}>{rating.label}</p>
-                <p style={{ fontFamily: 'monospace', fontSize: 12, color: '#9a948e', margin: 0 }}>
-                  Обновлено: {lastUpdated}
-                </p>
+                <p style={{ fontFamily: 'monospace', fontSize: 12, color: '#9a948e', margin: 0 }}>Обновлено: {lastUpdated}</p>
               </div>
-              <div style={{ fontSize: 64 }}>🇹🇭</div>
+              <span style={{ fontSize: 64 }}>🇹🇭</span>
             </div>
-
-            {/* Разбивка по блокам */}
             <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #e8e2d9', padding: '24px 28px', marginBottom: 20 }}>
               <p style={{ fontFamily: 'monospace', fontSize: 11, color: '#9a948e', margin: '0 0 20px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Разбивка по блокам</p>
-              <RatingBar label={`Макро (вес 30%) — ВВП: +${latestGdp}%, Инфляция: ${latestInflation}%, Ставка: 2.5%`} score={scores.macro} color="#c8622a" />
-              <RatingBar label="Недвижимость (вес 35%) — Yield: 5%, Рост цен: +4% г/г" score={scores.re} color="#2a7a4a" />
-              <RatingBar label="Фондовый рынок (вес 35%) — P/E: 15x, Дивиденды: 3.5%, SET: -4.5%" score={scores.eq} color="#2a4a8a" />
+              <RatingBar label={`Макро (30%) — ВВП: +${latestGdp}%, Инфляция: ${latestInflation}%, Ставка: 2.5%`} score={scores.macro} color="#c8622a" />
+              <RatingBar label="Недвижимость (35%) — Yield: 5%, Рост цен: +4% г/г" score={scores.re} color="#2a7a4a" />
+              <RatingBar label="Фондовый рынок (35%) — P/E: 15x, Дивиденды: 3.5%, SET: -4.5%" score={scores.eq} color="#2a4a8a" />
             </div>
-
-            {/* Методология */}
             <div style={{ background: '#f5f2ee', border: '1px solid #e8e2d9', borderRadius: 12, padding: '20px 24px' }}>
               <p style={{ fontFamily: 'monospace', fontSize: 11, color: '#9a948e', margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Методология</p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
@@ -637,14 +526,13 @@ export default function ThailandPage() {
           </div>
         )}
 
-        {/* ── ЗАМЕТКИ ── */}
         {!loading && tab === 'notes' && (
           <div>
             <p style={{ color: '#4a4540', fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.1em', margin: '0 0 4px', textTransform: 'uppercase' }}>Заметки</p>
             <h2 style={{ fontSize: 22, color: '#1a1612', margin: '0 0 24px' }}>Аналитические наблюдения</h2>
             {[
               { date: 'Март 2026', tag: 'Макро', title: 'Слабый бат — двойной эффект', text: 'THB торгуется у 35–36 за доллар. Для экспортёров и туризма это плюс, для импортёров энергии — существенный минус.', color: '#c8622a' },
-              { date: 'Февраль 2026', tag: 'Недвижимость', title: 'Пхукет: ажиотаж или устойчивый рост?', text: 'Продажи кондо иностранцам выросли на 18% г/г. Основные покупатели — граждане РФ, Китая и Европы. Квота 49% в ряде проектов уже выбрана.', color: '#2a7a4a' },
+              { date: 'Февраль 2026', tag: 'Недвижимость', title: 'Пхукет: ажиотаж или устойчивый рост?', text: 'Продажи кондо иностранцам выросли на 18% г/г. Основные покупатели — граждане РФ, Китая и Европы.', color: '#2a7a4a' },
               { date: 'Январь 2026', tag: 'Фондовый рынок', title: 'SET на многолетних минимумах — момент входа?', text: 'За 2022–2025 SET потерял ~20%. P/E на уровне 14–15x исторически соответствовал хорошим точкам входа.', color: '#2a4a8a' },
             ].map((n, i) => (
               <div key={i} style={{ background: '#fff', borderRadius: 12, border: '1px solid #e8e2d9', padding: '24px 28px', marginBottom: 16, borderLeft: `3px solid ${n.color}` }}>
@@ -658,6 +546,7 @@ export default function ThailandPage() {
             ))}
           </div>
         )}
+
       </div>
     </div>
   );
