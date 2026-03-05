@@ -285,33 +285,64 @@ export default function ThailandPage() {
     <div style={{ background: '#f5f2ee', minHeight: '100vh', fontFamily: 'Georgia, serif' }}>
       <Nav />
 
-      {/* Шапка страницы */}
+     {/* Шапка страницы */}
       <div style={{ background: '#fff', borderBottom: '1px solid #e8e2d9', padding: '28px 40px 24px', marginTop: 56 }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <span style={{ fontSize: 48 }}>🇹🇭</span>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                  <h1 style={{ fontSize: 28, color: '#1a1612', margin: 0 }}>Таиланд</h1>
-                  <span style={{ background: '#dde7f5', color: '#2a4a8a', borderRadius: 4, padding: '2px 8px', fontFamily: 'monospace', fontSize: 10 }}>ЮВА</span>
-                  {!loading && <RatingTooltip rating={rating} />}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {/* Индикатор обновления */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                    <div style={{
-                      width: 7, height: 7, borderRadius: '50%',
-                      background: isNew ? '#2a7a4a' : '#9a948e',
-                      boxShadow: isNew ? '0 0 6px #2a7a4a' : 'none',
-                      transition: 'all 0.5s',
-                    }} />
-                    <p style={{ fontFamily: 'monospace', fontSize: 11, color: isNew ? '#2a7a4a' : '#9a948e', margin: 0, transition: 'color 0.5s' }}>
-                      {loading ? 'Загрузка...' : isNew ? `Обновлено ${lastUpdated}` : `Данные от ${lastUpdated} · World Bank API`}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 20 }}>
+
+            {/* Флаг + название */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
+              <span style={{ fontSize: 52 }}>🇹🇭</span>
+              <h1 style={{ fontSize: 32, color: '#1a1612', margin: 0 }}>Таиланд</h1>
+            </div>
+
+            {/* Метаданные по центру */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 14, flexWrap: 'wrap', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#9a948e' }}>Регион:</span>
+                <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#4a4540', fontWeight: 600 }}>Юго-Восточная Азия</span>
+              </div>
+              <span style={{ color: '#e8e2d9' }}>·</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#9a948e' }}>Рейтинг:</span>
+                {!loading && <RatingTooltip rating={rating} />}
+              </div>
+              <span style={{ color: '#e8e2d9' }}>·</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <div style={{
+                  width: 7, height: 7, borderRadius: '50%',
+                  background: isNew ? '#2a7a4a' : '#9a948e',
+                  boxShadow: isNew ? '0 0 6px #2a7a4a' : 'none',
+                  transition: 'all 0.5s', flexShrink: 0,
+                }} />
+                <span style={{ fontFamily: 'monospace', fontSize: 11, color: isNew ? '#2a7a4a' : '#9a948e', transition: 'color 0.5s' }}>
+                  {loading ? 'Загрузка...' : isNew ? `Обновлено ${lastUpdated}` : `Данные от ${lastUpdated}`}
+                </span>
+              </div>
+            </div>
+
+            {/* Мини-карточки рейтинга по центру */}
+            {!loading && (
+              <div style={{ display: 'flex', gap: 10, marginBottom: 4 }}>
+                {[
+                  { label: 'Макро', score: scores.macro, color: '#c8622a' },
+                  { label: 'Недвижимость', score: scores.re, color: '#2a7a4a' },
+                  { label: 'Акции', score: scores.eq, color: '#2a4a8a' },
+                ].map((s, i) => (
+                  <div key={i} style={{
+                    background: '#f5f2ee', border: '1px solid #e8e2d9',
+                    borderRadius: 8, padding: '8px 16px', textAlign: 'center',
+                    minWidth: 80,
+                  }}>
+                    <p style={{ fontFamily: 'monospace', fontSize: 9, color: '#9a948e', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{s.label}</p>
+                    <p style={{ fontFamily: 'monospace', fontSize: 18, fontWeight: 700, color: s.color, margin: 0 }}>
+                      {Math.round(s.score * 100)}
                     </p>
                   </div>
-                </div>
+                ))}
               </div>
+            )}
+          </div>
             </div>
 
             {/* Мини-карточки рейтинга справа */}
