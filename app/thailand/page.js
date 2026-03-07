@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import Nav from '../components/Nav';
 import {
   AreaChart, Area, LineChart, Line, BarChart, Bar,
@@ -219,6 +220,7 @@ export default function ThailandPage() {
     { id: 'energy', label: 'Энергетика' },
     { id: 'rating', label: '★ Рейтинг' },
     { id: 'notes', label: 'Заметки' },
+    { id: 'diary', label: '📖 Дневник Таиланда', link: '/thailand/diary' },
   ];
 
   return (
@@ -228,9 +230,7 @@ export default function ThailandPage() {
       <div style={{ background: '#fff', borderBottom: '1px solid #e8e2d9', marginTop: 56 }}>
         <div style={{ maxWidth: 1000, margin: '0 auto', padding: '28px 40px 24px' }}>
 
-          {/* Шапка по центру */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 20 }}>
-
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
               <span style={{ fontSize: 52 }}>🇹🇭</span>
               <h1 style={{ fontSize: 32, color: '#1a1612', margin: 0 }}>Таиланд</h1>
@@ -278,7 +278,16 @@ export default function ThailandPage() {
 
           {/* Табы */}
           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'center' }}>
-            {tabs.map(t => (
+            {tabs.map(t => t.link ? (
+              <Link key={t.id} href={t.link} style={{
+                background: '#1a3a6a', color: '#fff',
+                border: '1px solid #1a3a6a',
+                borderRadius: 6, padding: '7px 16px',
+                fontFamily: 'monospace', fontSize: 12,
+                textDecoration: 'none', display: 'inline-block',
+                transition: 'opacity 0.15s',
+              }}>{t.label}</Link>
+            ) : (
               <button key={t.id} onClick={() => setTab(t.id)} style={{
                 background: tab === t.id ? '#c8622a' : 'transparent',
                 color: tab === t.id ? '#fff' : '#9a948e',
