@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"C:\\\\Users\\\\ACER\\\\macroview\" remote -v)",
+      "Read(//c/Users/ACER/Downloads/**)",
+      "Bash(powershell -Command \"Expand-Archive -Path ''macroview_project.zip'' -DestinationPath ''macroview_project_extracted'' -Force\")"
+    ]
+  }
+}
