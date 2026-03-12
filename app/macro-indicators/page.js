@@ -73,6 +73,8 @@ function Sparkline({ data, color, width = 100, height = 36 }) {
 }
 
 function LineChart({ datasets, yLabel = '', width = 680, height = 260 }) {
+  const [hover, setHover] = useState(null)
+
   if (!datasets || datasets.length === 0) return null
   const pad = { top: 24, right: 24, bottom: 36, left: 52 }
   const W = width - pad.left - pad.right
@@ -84,38 +86,82 @@ function LineChart({ datasets, yLabel = '', width = 680, height = 260 }) {
   const minY = Math.min(...allYears), maxY = Math.max(...allYears), yearRange = maxY - minY || 1
   const xPos = y => ((y - minY) / yearRange) * W
   const yPos = v => H - ((v - minV) / range) * H
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const mouseX = e.clientX - rect.left - pad.left
+    const ratio = Math.max(0, Math.min(1, mouseX / W))
+    const year = Math.round(minY + ratio * yearRange)
+    const snapped = allYears.reduce((a, b) => Math.abs(b - year) < Math.abs(a - year) ? b : a)
+    const points = datasets.map(ds => {
+      const pt = ds.points.find(p => p.year === snapped)
+      return pt ? { slug: ds.slug, value: pt.value, color: ds.color } : null
+    }).filter(Boolean)
+    setHover({ x: xPos(snapped), year: snapped, points })
+  }
+
   return (
-    <svg width={width} height={height} style={{ overflow: 'visible' }}>
-      <g transform={`translate(${pad.left},${pad.top})`}>
-        {Array.from({ length: 6 }).map((_, i) => {
-          const v = minV + (range / 5) * i
-          const y = yPos(v)
-          return (
-            <g key={i}>
-              <line x1={0} y1={y} x2={W} y2={y} stroke={T.border} strokeWidth="1" />
-              <text x={-8} y={y + 4} textAnchor="end" fill={T.sub} fontSize="10" fontFamily="-apple-system,sans-serif">{Math.round(v)}</text>
-            </g>
-          )
-        })}
-        {allYears.filter((_, i) => i % 2 === 0).map(year => (
-          <text key={year} x={xPos(year)} y={H + 22} textAnchor="middle" fill={T.sub} fontSize="10" fontFamily="-apple-system,sans-serif">{year}</text>
-        ))}
-        <rect x={xPos(2025)} y={0} width={W - xPos(2025)} height={H} fill={T.accent2} opacity="0.4" rx="4" />
-        <line x1={xPos(2025)} y1={0} x2={xPos(2025)} y2={H} stroke={T.accent} strokeWidth="1" strokeDasharray="4,3" opacity="0.4" />
-        <text x={xPos(2025) + 6} y={14} fill={T.accent} fontSize="9" fontFamily="-apple-system,sans-serif" opacity="0.7">прогноз</text>
-        {datasets.map(ds => {
-          const pts = ds.points.map(p => `${xPos(p.year)},${yPos(p.value)}`).join(' ')
-          const last = ds.points[ds.points.length - 1]
-          return (
-            <g key={ds.slug}>
-              <polyline points={pts} fill="none" stroke={ds.color} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-              {last && <circle cx={xPos(last.year)} cy={yPos(last.value)} r="4" fill={ds.color} stroke="#fff" strokeWidth="2" />}
-            </g>
-          )
-        })}
-        <text transform={`rotate(-90) translate(${-H/2}, -40)`} textAnchor="middle" fill={T.sub} fontSize="10" fontFamily="-apple-system,sans-serif">{yLabel}</text>
-      </g>
-    </svg>
+    <div style={{ position: 'relative', display: 'inline-block' }}>
+      <svg width={width} height={height} style={{ overflow: 'visible', cursor: 'default' }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => setHover(null)}
+      >
+        <g transform={`translate(${pad.left},${pad.top})`}>
+          {Array.from({ length: 6 }).map((_, i) => {
+            const v = minV + (range / 5) * i
+            const y = yPos(v)
+            return (
+              <g key={i}>
+                <line x1={0} y1={y} x2={W} y2={y} stroke={T.border} strokeWidth="1" />
+                <text x={-8} y={y + 4} textAnchor="end" fill={T.sub} fontSize="10" fontFamily="-apple-system,sans-serif">{Math.round(v)}</text>
+              </g>
+            )
+          })}
+          {allYears.filter((_, i) => i % 2 === 0).map(year => (
+            <text key={year} x={xPos(year)} y={H + 22} textAnchor="middle" fill={T.sub} fontSize="10" fontFamily="-apple-system,sans-serif">{year}</text>
+          ))}
+          <rect x={xPos(2025)} y={0} width={W - xPos(2025)} height={H} fill={T.accent2} opacity="0.4" rx="4" />
+          <line x1={xPos(2025)} y1={0} x2={xPos(2025)} y2={H} stroke={T.accent} strokeWidth="1" strokeDasharray="4,3" opacity="0.4" />
+          <text x={xPos(2025) + 6} y={14} fill={T.accent} fontSize="9" fontFamily="-apple-system,sans-serif" opacity="0.7">прогноз</text>
+          {datasets.map(ds => {
+            const pts = ds.points.map(p => `${xPos(p.year)},${yPos(p.value)}`).join(' ')
+            const last = ds.points[ds.points.length - 1]
+            return (
+              <g key={ds.slug}>
+                <polyline points={pts} fill="none" stroke={ds.color} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+                {last && <circle cx={xPos(last.year)} cy={yPos(last.value)} r="4" fill={ds.color} stroke="#fff" strokeWidth="2" />}
+              </g>
+            )
+          })}
+          <text transform={`rotate(-90) translate(${-H/2}, -40)`} textAnchor="middle" fill={T.sub} fontSize="10" fontFamily="-apple-system,sans-serif">{yLabel}</text>
+        </g>
+      </svg>
+
+      {hover && (
+        <div style={{
+          position: 'absolute',
+          left: Math.min(hover.x + pad.left + 12, width - 160),
+          top: pad.top,
+          background: T.text, color: '#fff',
+          borderRadius: 10, padding: '10px 14px',
+          fontSize: 12, fontFamily: '-apple-system,sans-serif',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+          pointerEvents: 'none', zIndex: 10, minWidth: 140,
+        }}>
+          <div style={{ fontWeight: 700, marginBottom: 8, color: '#aab4c8', fontSize: 11 }}>{hover.year}</div>
+          {hover.points
+            .sort((a, b) => b.value - a.value)
+            .map(p => (
+              <div key={p.slug} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5 }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: p.color, flexShrink: 0 }} />
+                <span style={{ color: '#e2e8f0', flex: 1 }}>{COUNTRY_NAMES[p.slug]}</span>
+                <span style={{ fontWeight: 700, color: '#fff' }}>{p.value?.toLocaleString('ru')}</span>
+              </div>
+            ))
+          }
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -265,26 +311,26 @@ export default function MacroIndicatorsPage() {
             <span style={{ color: T.text, fontWeight: 600 }}>Макроиндикаторы</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-            <div style={{ width: 52, height: 52, borderRadius: 16, background: T.accent2, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>📊</div>
+            <div style={{ width: 52, height: 52, borderRadius: 16, background: T.accent2, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>👥</div>
             <div>
               <h1 style={{ fontSize: 26, fontWeight: 800, color: T.text, margin: 0, lineHeight: 1.2 }}>Человеческий капитал</h1>
-              <p style={{ fontSize: 13, color: T.sub, margin: '4px 0 0' }}>Долгосрочный анализ · методология Далио · 21 страна · 1990–2035</p>
+              <p style={{ fontSize: 13, color: T.sub, margin: '4px 0 0' }}>Население, образование и рынок труда · 20 стран + Мир · 1990–2035</p>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 4, overflowX: 'auto' }}>
+          <div style={{ display: 'flex', gap: 4, overflowX: 'auto', justifyContent: 'center' }}>
             {SECTIONS.map(s => (
               <button key={s.id} onClick={() => setActiveSection(s.id)} style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                padding: '10px 18px', borderRadius: '10px 10px 0 0',
+                display: 'flex', alignItems: 'center', gap: 7,
+                padding: '12px 22px', borderRadius: '12px 12px 0 0',
                 background: activeSection === s.id ? T.bg : 'transparent',
                 border: 'none',
-                borderBottom: `2px solid ${activeSection === s.id ? T.accent : 'transparent'}`,
+                borderBottom: `3px solid ${activeSection === s.id ? T.accent : 'transparent'}`,
                 cursor: 'pointer', whiteSpace: 'nowrap',
-                fontSize: 13, fontWeight: activeSection === s.id ? 700 : 500,
+                fontSize: 15, fontWeight: activeSection === s.id ? 700 : 500,
                 color: activeSection === s.id ? T.accent : T.sub,
                 transition: 'all 0.15s',
               }}>
-                <span>{s.icon}</span> {s.label}
+                <span style={{ fontSize: 17 }}>{s.icon}</span> {s.label}
               </button>
             ))}
           </div>
