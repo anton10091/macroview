@@ -50,6 +50,7 @@ function Flag({ slug, size = 22 }) {
   return (
     <img src={`https://flagcdn.com/w${size * 2}/${code}.png`}
       width={Math.round(size * 1.33)} height={size} alt={slug}
+      onError={e => { e.target.src = `https://flagicons.lipis.dev/flags/4x3/${code}.svg` }}
       style={{ borderRadius: 3, objectFit: 'cover', display: 'inline-block', verticalAlign: 'middle', boxShadow: '0 1px 3px rgba(0,0,0,0.15)' }}
     />
   )
@@ -295,9 +296,15 @@ export default function MacroIndicatorsPage() {
         {/* Боковая панель */}
         <div style={{ width: 210, flexShrink: 0 }}>
           <div style={{ background: T.card, borderRadius: T.radius, boxShadow: T.shadow, border: `1px solid ${T.border}`, padding: 16, position: 'sticky', top: 24 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
               <span style={{ fontSize: 11, fontWeight: 700, color: T.sub, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Страны</span>
-              <span style={{ background: T.accent2, color: T.accent, borderRadius: 10, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>{selected.length}/8</span>
+              <span style={{ background: selected.length >= 8 ? '#FEE2E2' : T.accent2, color: selected.length >= 8 ? '#dc2626' : T.accent, borderRadius: 10, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>{selected.length}/8</span>
+            </div>
+            <div style={{ fontSize: 11, color: T.sub, marginBottom: 12, lineHeight: 1.4 }}>
+              {selected.length >= 8
+                ? '⚠️ Достигнут максимум'
+                : `Можно выбрать ещё ${8 - selected.length}`
+              }
             </div>
             {ALL_COUNTRIES.map(slug => {
               const isOn = selected.includes(slug)
