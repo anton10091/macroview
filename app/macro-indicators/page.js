@@ -14,12 +14,26 @@ const COUNTRY_COLORS = {
   kazakhstan:'#8b5cf6', uzbekistan:'#f59e0b', israel:'#2563eb', cyprus:'#64748b',
 }
 
-const COUNTRY_FLAGS = {
-  world:'🌍',
-  usa:'🇺🇸', china:'🇨🇳', india:'🇮🇳', russia:'🇷🇺', germany:'🇩🇪', uk:'🇬🇧',
-  thailand:'🇹🇭', uae:'🇦🇪', georgia:'🇬🇪', turkey:'🇹🇷', indonesia:'🇮🇩',
-  vietnam:'🇻🇳', malaysia:'🇲🇾', spain:'🇪🇸', portugal:'🇵🇹', serbia:'🇷🇸',
-  kazakhstan:'🇰🇿', uzbekistan:'🇺🇿', israel:'🇮🇱', cyprus:'🇨🇾',
+const COUNTRY_FLAG_CODES = {
+  world: null,
+  usa:'us', china:'cn', india:'in', russia:'ru', germany:'de', uk:'gb',
+  thailand:'th', uae:'ae', georgia:'ge', turkey:'tr', indonesia:'id',
+  vietnam:'vn', malaysia:'my', spain:'es', portugal:'pt', serbia:'rs',
+  kazakhstan:'kz', uzbekistan:'uz', israel:'il', cyprus:'cy',
+}
+
+function Flag({ slug, size = 20 }) {
+  const code = COUNTRY_FLAG_CODES[slug]
+  if (!code) return <span style={{ fontSize: size * 0.85, lineHeight: 1 }}>\u{1F30D}</span>
+  return (
+    <img
+      src={`https://flagcdn.com/w${size * 2}/${code}.png`}
+      width={Math.round(size * 1.33)}
+      height={size}
+      alt={slug}
+      style={{ borderRadius: 2, objectFit: 'cover', display: 'inline-block', verticalAlign: 'middle' }}
+    />
+  )
 }
 
 const COUNTRY_NAMES = {
@@ -290,7 +304,7 @@ export default function MacroIndicatorsPage() {
                   border: `1px solid ${isOn ? COUNTRY_COLORS[slug] : 'transparent'}`,
                   cursor: 'pointer', textAlign: 'left',
                 }}>
-                  <span style={{ fontSize: 14 }}>{COUNTRY_FLAGS[slug]}</span>
+                  <Flag slug={slug} />
                   <span style={{ fontFamily: 'monospace', fontSize: 10, color: isOn ? COUNTRY_COLORS[slug] : '#6a6460', fontWeight: isOn ? 700 : 400 }}>
                     {COUNTRY_NAMES[slug]}
                   </span>
@@ -314,7 +328,7 @@ export default function MacroIndicatorsPage() {
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
                 {selected.map(slug => (
                   <div key={slug} style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#fff', border: `1px solid ${COUNTRY_COLORS[slug]}`, borderRadius: 20, padding: '4px 10px' }}>
-                    <span style={{ fontSize: 12 }}>{COUNTRY_FLAGS[slug]}</span>
+                    <Flag slug={slug} />
                     <div style={{ width: 16, height: 2, background: COUNTRY_COLORS[slug], borderRadius: 1 }} />
                     <span style={{ fontFamily: 'monospace', fontSize: 10, color: COUNTRY_COLORS[slug], fontWeight: 700 }}>{COUNTRY_NAMES[slug]}</span>
                   </div>
@@ -341,7 +355,7 @@ export default function MacroIndicatorsPage() {
                       return (
                         <div key={slug} style={{ background: '#fff', border: `1px solid ${COUNTRY_COLORS[slug]}30`, borderLeft: `3px solid ${COUNTRY_COLORS[slug]}`, borderRadius: 8, padding: 14 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-                            <span style={{ fontSize: 16 }}>{COUNTRY_FLAGS[slug]}</span>
+                            <Flag slug={slug} />
                             <span style={{ fontFamily: 'monospace', fontSize: 10, fontWeight: 700, color: COUNTRY_COLORS[slug] }}>{COUNTRY_NAMES[slug]}</span>
                           </div>
                           <div style={{ fontFamily: 'Georgia, serif', fontSize: 22, fontWeight: 900, color: '#1a1612', marginBottom: 2 }}>{total ? `${total}M` : '—'}</div>
@@ -425,7 +439,7 @@ export default function MacroIndicatorsPage() {
                       {selected.map(slug => (
                         <div key={slug} style={{ display: 'grid', gridTemplateColumns: '80px 1fr 80px', alignItems: 'center', gap: 12 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <span style={{ fontSize: 14 }}>{COUNTRY_FLAGS[slug]}</span>
+                            <Flag slug={slug} />
                             <span style={{ fontFamily: 'monospace', fontSize: 9, color: COUNTRY_COLORS[slug], fontWeight: 700 }}>{COUNTRY_NAMES[slug]}</span>
                           </div>
                           <StackedBar data={eduStructData[slug] || []} year={2025} />
@@ -457,7 +471,7 @@ export default function MacroIndicatorsPage() {
                       return (
                         <div key={slug} style={{ background: '#fff', border: `1px solid ${COUNTRY_COLORS[slug]}30`, borderLeft: `3px solid ${COUNTRY_COLORS[slug]}`, borderRadius: 8, padding: 14 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-                            <span style={{ fontSize: 16 }}>{COUNTRY_FLAGS[slug]}</span>
+                            <Flag slug={slug} />
                             <span style={{ fontFamily: 'monospace', fontSize: 10, fontWeight: 700, color: COUNTRY_COLORS[slug] }}>{COUNTRY_NAMES[slug]}</span>
                           </div>
                           <div style={{ fontFamily: 'Georgia, serif', fontSize: 28, fontWeight: 900, color: '#1a1612' }}>{qi ?? '—'}</div>
@@ -496,7 +510,7 @@ export default function MacroIndicatorsPage() {
                         .map(({ slug, val }) => (
                           <div key={slug} style={{ display: 'grid', gridTemplateColumns: '100px 1fr 50px', alignItems: 'center', gap: 12 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <span>{COUNTRY_FLAGS[slug]}</span>
+                              <Flag slug={slug} />
                               <span style={{ fontFamily: 'monospace', fontSize: 9, color: COUNTRY_COLORS[slug], fontWeight: 700 }}>{COUNTRY_NAMES[slug]}</span>
                             </div>
                             <div style={{ height: 8, background: '#f5f2ee', borderRadius: 4 }}>
@@ -532,7 +546,7 @@ export default function MacroIndicatorsPage() {
                         .map(({ slug, val }) => (
                           <div key={slug} style={{ display: 'grid', gridTemplateColumns: '100px 1fr 60px', alignItems: 'center', gap: 12 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <span>{COUNTRY_FLAGS[slug]}</span>
+                              <Flag slug={slug} />
                               <span style={{ fontFamily: 'monospace', fontSize: 9, color: COUNTRY_COLORS[slug], fontWeight: 700 }}>{COUNTRY_NAMES[slug]}</span>
                             </div>
                             <div style={{ height: 10, background: '#f5f2ee', borderRadius: 4, position: 'relative' }}>
@@ -558,7 +572,7 @@ export default function MacroIndicatorsPage() {
                       return (
                         <div key={slug} style={{ background: '#fff', border: `1px solid ${COUNTRY_COLORS[slug]}30`, borderLeft: `3px solid ${COUNTRY_COLORS[slug]}`, borderRadius: 8, padding: 16 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
-                            <span style={{ fontSize: 18 }}>{COUNTRY_FLAGS[slug]}</span>
+                            <Flag slug={slug} />
                             <span style={{ fontFamily: 'monospace', fontSize: 11, fontWeight: 700, color: COUNTRY_COLORS[slug] }}>{COUNTRY_NAMES[slug]}</span>
                             <span style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 900, color: '#1a1612', marginLeft: 'auto' }}>{row.hci_score}</span>
                           </div>
