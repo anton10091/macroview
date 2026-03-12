@@ -76,23 +76,38 @@ function LineChart({ datasets, yLabel = '', width = 680, height = 260 }) {
   const [hover, setHover] = useState(null)
 
   if (!datasets || datasets.length === 0) return null
-  const pad = { top: 24, right: 24, bottom: 36, left: 52 }
+  const pad = { top: 20, right: 24, bottom: 32, left: 52 }
   const W = width - pad.left - pad.right
   const H = height - pad.top - pad.bottom
-  const allVals = datasets.flatMap(d => d.points.map(p => p.value))
-  const allYears = [...new Set(datasets.flatMap(d => d.points.map(p => p.year)))].sort()
-  const minV = Math.min(...allVals) * 0.95, maxV = Math.max(...allVals) * 1.05
-  const range = maxV - minV || 1
-  const minY = Math.min(...allYears), maxY = Math.max(...allYears), yearRange = maxY - minY || 1
-  const xPos = y => ((y - minY) / yearRange) * W
-  const yPos = v => H - ((v - minV) / range) * H
 
+  // Все годы из данных
+  const allYears = [...new Set(datasets.flatMap(d => d.points.map(p => p.year)))].sort()
+  const minY = Math.min(...allYears), maxY = Math.max(...allYears)
+  const yearRange = maxY - minY || 1
+
+  // Stacked: считаем суммарный максимум по каждому году
+  const stackTotals = {}
+  allYears.forEach(yr => {
+    stackTotals[yr] = datasets.reduce((sum, ds) => {
+      const pt = ds.points.find(p => p.year === yr)
+      return sum + (pt?.value || 0)
+    }, 0)
+  })
+  const maxV = Math.max(...Object.values(stackTotals)) * 1.05
+
+  const xPos = yr => ((yr - minY) / yearRange) * W
+  const yPos = v => H - (v / maxV) * H
+
+  // Шкала X — каждые 5 лет
+  const xLabels = allYears.filter(y => y % 5 === 0)
+
+  // При наведении — ближайший год из данных
   const handleMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect()
     const mouseX = e.clientX - rect.left - pad.left
     const ratio = Math.max(0, Math.min(1, mouseX / W))
-    const year = Math.round(minY + ratio * yearRange)
-    const snapped = allYears.reduce((a, b) => Math.abs(b - year) < Math.abs(a - year) ? b : a)
+    const yearEst = minY + ratio * yearRange
+    const snapped = allYears.reduce((a, b) => Math.abs(b - yearEst) < Math.abs(a - yearEst) ? b : a)
     const points = datasets.map(ds => {
       const pt = ds.points.find(p => p.year === snapped)
       return pt ? { slug: ds.slug, value: pt.value, color: ds.color } : null
@@ -100,15 +115,45 @@ function LineChart({ datasets, yLabel = '', width = 680, height = 260 }) {
     setHover({ x: xPos(snapped), year: snapped, points })
   }
 
+  // Строим stacked полигоны
+  const buildStackedPaths = () => {
+    const paths = []
+    const cumulative = {}
+    allYears.forEach(yr => { cumulative[yr] = 0 })
+
+    datasets.forEach(ds => {
+      const topPts = allYears.map(yr => {
+        const pt = ds.points.find(p => p.year === yr)
+        const val = pt?.value || 0
+        const stackedVal = cumulative[yr] + val
+        return { yr, val: stackedVal }
+      })
+      const bottomPts = allYears.map(yr => ({ yr, val: cumulative[yr] }))
+
+      const topStr = topPts.map(p => `${xPos(p.yr)},${yPos(p.val)}`).join(' ')
+      const bottomStr = [...bottomPts].reverse().map(p => `${xPos(p.yr)},${yPos(p.val)}`).join(' ')
+
+      paths.push({ ds, topPts, polygon: topStr + ' ' + bottomStr })
+      allYears.forEach(yr => {
+        const pt = ds.points.find(p => p.year === yr)
+        cumulative[yr] += pt?.value || 0
+      })
+    })
+    return paths
+  }
+
+  const stackedPaths = buildStackedPaths()
+
   return (
     <div style={{ position: 'relative', display: 'inline-block' }}>
-      <svg width={width} height={height} style={{ overflow: 'visible', cursor: 'default' }}
+      <svg width={width} height={height} style={{ overflow: 'visible', cursor: 'crosshair' }}
         onMouseMove={handleMouseMove}
         onMouseLeave={() => setHover(null)}
       >
         <g transform={`translate(${pad.left},${pad.top})`}>
-          {Array.from({ length: 6 }).map((_, i) => {
-            const v = minV + (range / 5) * i
+          {/* Grid горизонтальный */}
+          {Array.from({ length: 5 }).map((_, i) => {
+            const v = (maxV / 4) * i
             const y = yPos(v)
             return (
               <g key={i}>
@@ -117,45 +162,76 @@ function LineChart({ datasets, yLabel = '', width = 680, height = 260 }) {
               </g>
             )
           })}
-          {allYears.filter((_, i) => i % 2 === 0).map(year => (
-            <text key={year} x={xPos(year)} y={H + 22} textAnchor="middle" fill={T.sub} fontSize="10" fontFamily="-apple-system,sans-serif">{year}</text>
+
+          {/* X метки каждые 5 лет */}
+          {xLabels.map(yr => (
+            <g key={yr}>
+              <line x1={xPos(yr)} y1={0} x2={xPos(yr)} y2={H} stroke={T.border} strokeWidth="0.5" strokeDasharray="2,3" />
+              <text x={xPos(yr)} y={H + 18} textAnchor="middle" fill={T.sub} fontSize="10" fontFamily="-apple-system,sans-serif">{yr}</text>
+            </g>
           ))}
-          <rect x={xPos(2025)} y={0} width={W - xPos(2025)} height={H} fill={T.accent2} opacity="0.4" rx="4" />
-          <line x1={xPos(2025)} y1={0} x2={xPos(2025)} y2={H} stroke={T.accent} strokeWidth="1" strokeDasharray="4,3" opacity="0.4" />
-          <text x={xPos(2025) + 6} y={14} fill={T.accent} fontSize="9" fontFamily="-apple-system,sans-serif" opacity="0.7">прогноз</text>
-          {datasets.map(ds => {
-            const pts = ds.points.map(p => `${xPos(p.year)},${yPos(p.value)}`).join(' ')
-            const last = ds.points[ds.points.length - 1]
-            return (
-              <g key={ds.slug}>
-                <polyline points={pts} fill="none" stroke={ds.color} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-                {last && <circle cx={xPos(last.year)} cy={yPos(last.value)} r="4" fill={ds.color} stroke="#fff" strokeWidth="2" />}
-              </g>
-            )
-          })}
+
+          {/* Прогноз зона */}
+          <rect x={xPos(2025)} y={0} width={W - xPos(2025)} height={H} fill={T.accent2} opacity="0.3" />
+          <line x1={xPos(2025)} y1={0} x2={xPos(2025)} y2={H} stroke={T.accent} strokeWidth="1" strokeDasharray="4,3" opacity="0.5" />
+          <text x={xPos(2025) + 5} y={12} fill={T.accent} fontSize="9" fontFamily="-apple-system,sans-serif" opacity="0.7">прогноз</text>
+
+          {/* Stacked area полигоны */}
+          {stackedPaths.map(({ ds, topPts, polygon }) => (
+            <g key={ds.slug}>
+              <polygon points={polygon} fill={ds.color} opacity="0.25" />
+              <polyline
+                points={topPts.map(p => `${xPos(p.yr)},${yPos(p.val)}`).join(' ')}
+                fill="none" stroke={ds.color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"
+              />
+            </g>
+          ))}
+
+          {/* Вертикальная линия + точки при ховере */}
+          {hover && (
+            <g>
+              <line x1={hover.x} y1={0} x2={hover.x} y2={H}
+                stroke={T.text} strokeWidth="1.5" opacity="0.5" />
+              {/* Подсветка года на оси */}
+              <rect x={hover.x - 18} y={H + 4} width={36} height={16} fill={T.accent} rx="4" opacity="0.9" />
+              <text x={hover.x} y={H + 15} textAnchor="middle" fill="#fff" fontSize="9" fontWeight="bold" fontFamily="-apple-system,sans-serif">{hover.year}</text>
+              {hover.points.map(p => {
+                // Найти stacked y для этой страны
+                const path = stackedPaths.find(sp => sp.ds.slug === p.slug)
+                const pt = path?.topPts.find(tp => tp.yr === hover.year)
+                return pt ? (
+                  <circle key={p.slug} cx={hover.x} cy={yPos(pt.val)} r="5"
+                    fill={p.color} stroke="#fff" strokeWidth="2" />
+                ) : null
+              })}
+            </g>
+          )}
+
+          {/* Y label */}
           <text transform={`rotate(-90) translate(${-H/2}, -40)`} textAnchor="middle" fill={T.sub} fontSize="10" fontFamily="-apple-system,sans-serif">{yLabel}</text>
         </g>
       </svg>
 
+      {/* Тултип */}
       {hover && (
         <div style={{
           position: 'absolute',
-          left: Math.min(hover.x + pad.left + 12, width - 160),
+          left: hover.x + pad.left + 14 > width - 160 ? hover.x + pad.left - 160 : hover.x + pad.left + 14,
           top: pad.top,
           background: T.text, color: '#fff',
-          borderRadius: 10, padding: '10px 14px',
+          borderRadius: 12, padding: '12px 16px',
           fontSize: 12, fontFamily: '-apple-system,sans-serif',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
-          pointerEvents: 'none', zIndex: 10, minWidth: 140,
+          boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+          pointerEvents: 'none', zIndex: 10, minWidth: 150,
         }}>
-          <div style={{ fontWeight: 700, marginBottom: 8, color: '#aab4c8', fontSize: 11 }}>{hover.year}</div>
+          <div style={{ fontWeight: 700, marginBottom: 10, color: '#aab4c8', fontSize: 11, borderBottom: '1px solid #ffffff20', paddingBottom: 8 }}>{hover.year}</div>
           {hover.points
             .sort((a, b) => b.value - a.value)
             .map(p => (
-              <div key={p.slug} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5 }}>
+              <div key={p.slug} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: p.color, flexShrink: 0 }} />
-                <span style={{ color: '#e2e8f0', flex: 1 }}>{COUNTRY_NAMES[p.slug]}</span>
-                <span style={{ fontWeight: 700, color: '#fff' }}>{p.value?.toLocaleString('ru')}</span>
+                <span style={{ color: '#cbd5e1', flex: 1, fontSize: 11 }}>{COUNTRY_NAMES[p.slug]}</span>
+                <span style={{ fontWeight: 700, color: '#fff', fontSize: 12 }}>{p.value?.toLocaleString('ru')}</span>
               </div>
             ))
           }
@@ -311,7 +387,7 @@ export default function MacroIndicatorsPage() {
             <span style={{ color: T.text, fontWeight: 600 }}>Макроиндикаторы</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-            <div style={{ width: 52, height: 52, borderRadius: 16, background: T.accent2, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>👥</div>
+            <div style={{ width: 52, height: 52, borderRadius: 16, background: T.accent2, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>🌍</div>
             <div>
               <h1 style={{ fontSize: 26, fontWeight: 800, color: T.text, margin: 0, lineHeight: 1.2 }}>Человеческий капитал</h1>
               <p style={{ fontSize: 13, color: T.sub, margin: '4px 0 0' }}>Население, образование и рынок труда · 20 стран + Мир · 1990–2035</p>
