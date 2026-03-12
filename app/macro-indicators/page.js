@@ -24,7 +24,7 @@ const COUNTRY_FLAG_CODES = {
 
 function Flag({ slug, size = 20 }) {
   const code = COUNTRY_FLAG_CODES[slug]
-  if (!code) return <span style={{ fontSize: size * 0.85, lineHeight: 1 }}>\u{1F30D}</span>
+  if (!code) return <span style={{ fontSize: size * 0.85, lineHeight: 1 }}>🌍</span>
   return (
     <img
       src={`https://flagcdn.com/w${size * 2}/${code}.png`}
