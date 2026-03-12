@@ -6,6 +6,7 @@ import { Navbar } from '../components/layout/Navbar'
 
 // ─── Цвета стран ────────────────────────────────────────────────
 const COUNTRY_COLORS = {
+  world:'#475569',
   usa:'#1a3a6a', china:'#dc2626', india:'#d97706', russia:'#7c3aed',
   germany:'#0891b2', uk:'#0d9488', thailand:'#db2777', uae:'#059669',
   georgia:'#ea580c', turkey:'#c2410c', indonesia:'#16a34a', vietnam:'#ca8a04',
@@ -14,14 +15,24 @@ const COUNTRY_COLORS = {
 }
 
 const COUNTRY_FLAGS = {
-  usa:'🇺🇸',china:'🇨🇳',india:'🇮🇳',russia:'🇷🇺',germany:'🇩🇪',uk:'🇬🇧',
-  thailand:'🇹🇭',uae:'🇦🇪',georgia:'🇬🇪',turkey:'🇹🇷',indonesia:'🇮🇩',
-  vietnam:'🇻🇳',malaysia:'🇲🇾',spain:'🇪🇸',portugal:'🇵🇹',serbia:'🇷🇸',
-  kazakhstan:'🇰🇿',uzbekistan:'🇺🇿',israel:'🇮🇱',cyprus:'🇨🇾',
+  world:'🌍',
+  usa:'🇺🇸', china:'🇨🇳', india:'🇮🇳', russia:'🇷🇺', germany:'🇩🇪', uk:'🇬🇧',
+  thailand:'🇹🇭', uae:'🇦🇪', georgia:'🇬🇪', turkey:'🇹🇷', indonesia:'🇮🇩',
+  vietnam:'🇻🇳', malaysia:'🇲🇾', spain:'🇪🇸', portugal:'🇵🇹', serbia:'🇷🇸',
+  kazakhstan:'🇰🇿', uzbekistan:'🇺🇿', israel:'🇮🇱', cyprus:'🇨🇾',
+}
+
+const COUNTRY_NAMES = {
+  world:'Мир',
+  usa:'США', china:'Китай', india:'Индия', russia:'Россия', germany:'Германия',
+  uk:'Британия', thailand:'Таиланд', uae:'ОАЭ', georgia:'Грузия', turkey:'Турция',
+  indonesia:'Индонезия', vietnam:'Вьетнам', malaysia:'Малайзия', spain:'Испания',
+  portugal:'Португалия', serbia:'Сербия', kazakhstan:'Казахстан',
+  uzbekistan:'Узбекистан', israel:'Израиль', cyprus:'Кипр',
 }
 
 const ALL_COUNTRIES = Object.keys(COUNTRY_COLORS)
-const DEFAULT_SELECTED = ['usa','china','india','thailand','uae','georgia']
+const DEFAULT_SELECTED = ['world','usa','china','india','thailand','uae']
 
 // ─── Мини SVG-график ────────────────────────────────────────────
 function Sparkline({ data, color, width = 120, height = 40 }) {
@@ -281,7 +292,7 @@ export default function MacroIndicatorsPage() {
                 }}>
                   <span style={{ fontSize: 14 }}>{COUNTRY_FLAGS[slug]}</span>
                   <span style={{ fontFamily: 'monospace', fontSize: 10, color: isOn ? COUNTRY_COLORS[slug] : '#6a6460', fontWeight: isOn ? 700 : 400 }}>
-                    {slug.toUpperCase()}
+                    {COUNTRY_NAMES[slug]}
                   </span>
                   {isOn && <div style={{ width: 6, height: 6, borderRadius: '50%', background: COUNTRY_COLORS[slug], marginLeft: 'auto', flexShrink: 0 }} />}
                 </button>
@@ -305,7 +316,7 @@ export default function MacroIndicatorsPage() {
                   <div key={slug} style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#fff', border: `1px solid ${COUNTRY_COLORS[slug]}`, borderRadius: 20, padding: '4px 10px' }}>
                     <span style={{ fontSize: 12 }}>{COUNTRY_FLAGS[slug]}</span>
                     <div style={{ width: 16, height: 2, background: COUNTRY_COLORS[slug], borderRadius: 1 }} />
-                    <span style={{ fontFamily: 'monospace', fontSize: 10, color: COUNTRY_COLORS[slug], fontWeight: 700 }}>{slug.toUpperCase()}</span>
+                    <span style={{ fontFamily: 'monospace', fontSize: 10, color: COUNTRY_COLORS[slug], fontWeight: 700 }}>{COUNTRY_NAMES[slug]}</span>
                   </div>
                 ))}
               </div>
@@ -331,7 +342,7 @@ export default function MacroIndicatorsPage() {
                         <div key={slug} style={{ background: '#fff', border: `1px solid ${COUNTRY_COLORS[slug]}30`, borderLeft: `3px solid ${COUNTRY_COLORS[slug]}`, borderRadius: 8, padding: 14 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
                             <span style={{ fontSize: 16 }}>{COUNTRY_FLAGS[slug]}</span>
-                            <span style={{ fontFamily: 'monospace', fontSize: 10, fontWeight: 700, color: COUNTRY_COLORS[slug] }}>{slug.toUpperCase()}</span>
+                            <span style={{ fontFamily: 'monospace', fontSize: 10, fontWeight: 700, color: COUNTRY_COLORS[slug] }}>{COUNTRY_NAMES[slug]}</span>
                           </div>
                           <div style={{ fontFamily: 'Georgia, serif', fontSize: 22, fontWeight: 900, color: '#1a1612', marginBottom: 2 }}>{total ? `${total}M` : '—'}</div>
                           <div style={{ fontFamily: 'monospace', fontSize: 9, color: '#9a948e', marginBottom: 8 }}>население 2025</div>
@@ -415,7 +426,7 @@ export default function MacroIndicatorsPage() {
                         <div key={slug} style={{ display: 'grid', gridTemplateColumns: '80px 1fr 80px', alignItems: 'center', gap: 12 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <span style={{ fontSize: 14 }}>{COUNTRY_FLAGS[slug]}</span>
-                            <span style={{ fontFamily: 'monospace', fontSize: 9, color: COUNTRY_COLORS[slug], fontWeight: 700 }}>{slug.toUpperCase()}</span>
+                            <span style={{ fontFamily: 'monospace', fontSize: 9, color: COUNTRY_COLORS[slug], fontWeight: 700 }}>{COUNTRY_NAMES[slug]}</span>
                           </div>
                           <StackedBar data={eduStructData[slug] || []} year={2025} />
                           <span style={{ fontFamily: 'monospace', fontSize: 10, color: '#22c55e', textAlign: 'right', fontWeight: 700 }}>
@@ -447,7 +458,7 @@ export default function MacroIndicatorsPage() {
                         <div key={slug} style={{ background: '#fff', border: `1px solid ${COUNTRY_COLORS[slug]}30`, borderLeft: `3px solid ${COUNTRY_COLORS[slug]}`, borderRadius: 8, padding: 14 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
                             <span style={{ fontSize: 16 }}>{COUNTRY_FLAGS[slug]}</span>
-                            <span style={{ fontFamily: 'monospace', fontSize: 10, fontWeight: 700, color: COUNTRY_COLORS[slug] }}>{slug.toUpperCase()}</span>
+                            <span style={{ fontFamily: 'monospace', fontSize: 10, fontWeight: 700, color: COUNTRY_COLORS[slug] }}>{COUNTRY_NAMES[slug]}</span>
                           </div>
                           <div style={{ fontFamily: 'Georgia, serif', fontSize: 28, fontWeight: 900, color: '#1a1612' }}>{qi ?? '—'}</div>
                           <div style={{ fontFamily: 'monospace', fontSize: 9, color: '#9a948e', marginBottom: 8 }}>индекс качества</div>
@@ -486,7 +497,7 @@ export default function MacroIndicatorsPage() {
                           <div key={slug} style={{ display: 'grid', gridTemplateColumns: '100px 1fr 50px', alignItems: 'center', gap: 12 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                               <span>{COUNTRY_FLAGS[slug]}</span>
-                              <span style={{ fontFamily: 'monospace', fontSize: 9, color: COUNTRY_COLORS[slug], fontWeight: 700 }}>{slug.toUpperCase()}</span>
+                              <span style={{ fontFamily: 'monospace', fontSize: 9, color: COUNTRY_COLORS[slug], fontWeight: 700 }}>{COUNTRY_NAMES[slug]}</span>
                             </div>
                             <div style={{ height: 8, background: '#f5f2ee', borderRadius: 4 }}>
                               <div style={{ height: '100%', width: `${val}%`, background: COUNTRY_COLORS[slug], borderRadius: 4, transition: 'width 0.4s' }} />
@@ -522,7 +533,7 @@ export default function MacroIndicatorsPage() {
                           <div key={slug} style={{ display: 'grid', gridTemplateColumns: '100px 1fr 60px', alignItems: 'center', gap: 12 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                               <span>{COUNTRY_FLAGS[slug]}</span>
-                              <span style={{ fontFamily: 'monospace', fontSize: 9, color: COUNTRY_COLORS[slug], fontWeight: 700 }}>{slug.toUpperCase()}</span>
+                              <span style={{ fontFamily: 'monospace', fontSize: 9, color: COUNTRY_COLORS[slug], fontWeight: 700 }}>{COUNTRY_NAMES[slug]}</span>
                             </div>
                             <div style={{ height: 10, background: '#f5f2ee', borderRadius: 4, position: 'relative' }}>
                               <div style={{ height: '100%', width: `${Math.min(val, 110)}%`, background: val >= 100 ? '#22c55e' : COUNTRY_COLORS[slug], borderRadius: 4, transition: 'width 0.4s' }} />
@@ -548,7 +559,7 @@ export default function MacroIndicatorsPage() {
                         <div key={slug} style={{ background: '#fff', border: `1px solid ${COUNTRY_COLORS[slug]}30`, borderLeft: `3px solid ${COUNTRY_COLORS[slug]}`, borderRadius: 8, padding: 16 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
                             <span style={{ fontSize: 18 }}>{COUNTRY_FLAGS[slug]}</span>
-                            <span style={{ fontFamily: 'monospace', fontSize: 11, fontWeight: 700, color: COUNTRY_COLORS[slug] }}>{slug.toUpperCase()}</span>
+                            <span style={{ fontFamily: 'monospace', fontSize: 11, fontWeight: 700, color: COUNTRY_COLORS[slug] }}>{COUNTRY_NAMES[slug]}</span>
                             <span style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 900, color: '#1a1612', marginLeft: 'auto' }}>{row.hci_score}</span>
                           </div>
                           {[
