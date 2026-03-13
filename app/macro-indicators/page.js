@@ -396,6 +396,12 @@ export default function MacroIndicatorsPage() {
     return row?.[key]
   }
 
+  const getLatestYear = (dataMap, slug) => {
+    const rows = dataMap[slug]; if (!rows?.length) return null
+    const row = rows.filter(r => !r.is_forecast).slice(-1)[0] || rows.slice(-1)[0]
+    return row?.year
+  }
+
   const SECTIONS = [
     { id: 'population',    label: 'Население',    icon: '👥' },
     { id: 'workforce',     label: 'Рабочая сила', icon: '💼' },
@@ -517,7 +523,7 @@ export default function MacroIndicatorsPage() {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: 14 }}>
                     {selected.map(slug => (
                       <StatCard key={slug} slug={slug}
-                        value={getLatest(popData, slug, 'population_total') ?? '—'} unit="млн" sub="население 2025"
+                        value={getLatest(popData, slug, 'population_total') ?? '—'} unit="млн" sub={`население ${getLatestYear(popData, slug) ?? '—'}`}
                         extra={
                           <span>
                             <span style={{ color: T.accent, fontWeight: 700 }}>{getLatest(popData, slug, 'population_15_64')}%</span> раб. возраст &nbsp;
