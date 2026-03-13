@@ -302,6 +302,101 @@ function SectionTitle({ label, sub }) {
   )
 }
 
+const GRAPH_DESCRIPTIONS = {
+  population: {
+    label: 'Население',
+    body: 'График показывает фактическую численность населения с 1990 года и прогноз до 2035. Сплошная линия — верифицированные данные, пунктир — модельный прогноз на основе текущих демографических тенденций.',
+    bullets: [
+      { color: '#15803d', text: 'Растущее население означает расширение внутреннего рынка, рост потребительского спроса и долгосрочный потенциал ВВП.' },
+      { color: '#0066FF', text: 'Доля трудоспособного возраста (15–64) определяет производительную базу экономики и объём налоговых поступлений.' },
+      { color: '#d97706', text: 'Рост доли населения 65+ создаёт нагрузку на пенсионную систему, здравоохранение и государственный бюджет.' },
+    ],
+    source: 'UN World Population Prospects · World Bank',
+  },
+  workforce: {
+    label: 'Рабочая сила',
+    body: 'Доля экономически активного населения и уровень молодёжной безработицы. Высокая занятость молодёжи — индикатор качества институтов рынка труда и перспектив роста.',
+    bullets: [
+      { color: '#15803d', text: 'Высокая доля рабочей силы при низкой безработице — признак эффективного рынка труда и инвестиционной привлекательности страны.' },
+      { color: '#d97706', text: 'Молодёжная безработица выше 20% — структурный риск: потерянное поколение снижает производительность и увеличивает социальную нагрузку на бюджет.' },
+      { color: '#0066FF', text: 'Сравнение стран в динамике выявляет тренды: улучшение показателей обычно предшествует ускорению экономического роста.' },
+    ],
+    source: 'ILO · World Bank · OECD',
+  },
+  edu_structure: {
+    label: 'Образование',
+    body: 'Структура образования населения 25+ и доля лиц с высшим образованием. Качество человеческого капитала напрямую определяет конкурентоспособность экономики.',
+    bullets: [
+      { color: '#15803d', text: 'Высокая доля населения с высшим образованием коррелирует с производительностью труда, инновационным потенциалом и уровнем зарплат.' },
+      { color: '#0066FF', text: 'Рост доли высшего образования — долгосрочный позитивный сигнал для инвестиций в технологический и финансовый секторы страны.' },
+      { color: '#d97706', text: 'Большая доля населения без образования ограничивает структурные реформы и снижает производительность экономики в целом.' },
+    ],
+    source: 'UNESCO · Barro-Lee · World Bank',
+  },
+  edu_quality: {
+    label: 'Качество образования',
+    body: 'Агрегированный индекс качества образования на основе данных PISA и UNESCO. Отражает реальный уровень подготовки рабочей силы, а не только формальный охват образованием.',
+    bullets: [
+      { color: '#15803d', text: 'Высокий индекс качества означает, что выпускники способны применять знания на практике — это критически важно для высокотехнологичных секторов.' },
+      { color: '#0066FF', text: 'Разрыв между охватом и качеством образования (много дипломов, низкий PISA) сигнализирует о структурных проблемах рынка труда.' },
+      { color: '#d97706', text: 'Страны с быстро растущим индексом качества — кандидаты на технологический рывок и привлечение иностранных инвестиций в R&D.' },
+    ],
+    source: 'PISA (OECD) · UNESCO Institute for Statistics',
+  },
+  labor_value: {
+    label: 'Рынок труда',
+    body: 'Средняя зарплата в USD и агрегированный индекс привлекательности рынка труда для инвестора. Сочетает стоимость и качество рабочей силы.',
+    bullets: [
+      { color: '#15803d', text: 'Низкая зарплата при высоком качестве образования — признак недооценённого рынка труда с потенциалом роста производительности.' },
+      { color: '#0066FF', text: 'Индекс привлекательности выше 70 означает оптимальное соотношение стоимости, квалификации и гибкости рабочей силы.' },
+      { color: '#d97706', text: 'Быстрый рост зарплат без роста производительности — сигнал перегрева: возможно снижение конкурентоспособности экспорта.' },
+    ],
+    source: 'ILO · World Bank · национальные статистические службы',
+  },
+  hci: {
+    label: 'Индекс HCI',
+    body: 'Human Capital Index — агрегированный показатель качества человеческого капитала. Объединяет демографию, рабочую силу, образование и рынок труда в единую оценку 0–100.',
+    bullets: [
+      { color: '#15803d', text: 'HCI выше 70 — страна формирует высококвалифицированную рабочую силу, способную поддерживать рост производительности и инновации.' },
+      { color: '#0066FF', text: 'Сравнение с США (базовый уровень 100) показывает относительный разрыв и потенциал конвергенции при правильной политике.' },
+      { color: '#d97706', text: 'Низкий HCI при высоком ВВП на душу населения — признак ресурсной зависимости: рост не подкреплён качественным человеческим капиталом.' },
+    ],
+    source: 'World Bank Human Capital Project · UN HDR',
+  },
+}
+
+function GraphDescription({ type }) {
+  const cfg = GRAPH_DESCRIPTIONS[type]
+  if (!cfg) return null
+  return (
+    <div style={{ background: '#ffffff', border: '0.5px solid #e8e2d8', borderRadius: '12px', padding: '20px 24px', fontFamily: 'Georgia, serif' }}>
+      <div style={{ marginBottom: 12 }}>
+        <div style={{ fontSize: 11, color: '#9a948e', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'monospace', marginBottom: 5 }}>
+          О графике · {cfg.label}
+        </div>
+        <p style={{ fontSize: 13, color: '#4a4540', lineHeight: 1.75, margin: 0 }}>{cfg.body}</p>
+      </div>
+      <div style={{ borderTop: '0.5px solid #e8e2d8', paddingTop: 14 }}>
+        <div style={{ fontSize: 11, color: '#9a948e', fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
+          Что это значит для инвестора
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {cfg.bullets.map(({ color, text }, i) => (
+            <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: color, flexShrink: 0, marginTop: 5 }} />
+              <p style={{ fontSize: 12, color: '#4a4540', lineHeight: 1.6, margin: 0 }}>{text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ marginTop: 14, padding: '8px 12px', background: '#f0f4f9', borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: 11, color: '#6a8ec8', fontFamily: 'monospace' }}>Источник: {cfg.source}</span>
+        <span style={{ fontSize: 11, color: '#9a948e', fontFamily: 'monospace' }}>Факт + прогноз</span>
+      </div>
+    </div>
+  )
+}
+
 function StatCard({ slug, value, unit, sub, extra, sparkData }) {
   const color = COUNTRY_COLORS[slug]
   return (
@@ -520,6 +615,7 @@ export default function MacroIndicatorsPage() {
                       <LineChart datasets={makeDatasets(popData, 'population_total')} yLabel="млн"  />
                     </div>
                   </Card>
+                  <GraphDescription type="population" />
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: 14 }}>
                     {selected.map(slug => (
                       <StatCard key={slug} slug={slug}
@@ -551,6 +647,7 @@ export default function MacroIndicatorsPage() {
                       <LineChart datasets={makeDatasets(wfData, 'workforce_rate')} yLabel="%"  />
                     </div>
                   </Card>
+                  <GraphDescription type="workforce" />
                   <Card>
                     <SectionTitle label="Молодёжная безработица (15–24)" sub="% · структурный риск рынка труда" />
                     <div style={{ overflowX: 'hidden' }}>
@@ -568,6 +665,7 @@ export default function MacroIndicatorsPage() {
                       <LineChart datasets={makeDatasets(eduStructData, 'tertiary_edu')} yLabel="%"  />
                     </div>
                   </Card>
+                  <GraphDescription type="edu_structure" />
                   <Card>
                     <SectionTitle label="Структура образования 2025" sub="🔴 без образования · 🟠 начальное · 🔵 среднее · 🟢 высшее" />
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -596,6 +694,7 @@ export default function MacroIndicatorsPage() {
                       <LineChart datasets={makeDatasets(eduQualData, 'quality_index')} yLabel="0–100"  />
                     </div>
                   </Card>
+                  <GraphDescription type="edu_quality" />
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: 14 }}>
                     {selected.map(slug => {
                       const qi = getLatest(eduQualData, slug, 'quality_index')
@@ -630,6 +729,7 @@ export default function MacroIndicatorsPage() {
                       <LineChart datasets={makeDatasets(laborData, 'avg_wage_usd')} yLabel="USD/мес"  />
                     </div>
                   </Card>
+                  <GraphDescription type="labor_value" />
                   <Card>
                     <SectionTitle label="Привлекательность рынка труда" sub="0–100 · чем выше — тем выгоднее для инвестора" />
                     {selected
@@ -649,6 +749,7 @@ export default function MacroIndicatorsPage() {
                       <LineChart datasets={makeDatasets(hciData, 'hci_score')} yLabel="0–100"  />
                     </div>
                   </Card>
+                  <GraphDescription type="hci" />
                   <Card>
                     <SectionTitle label="Сравнение с США" sub="HCI 2025 · США = 100 · синяя линия — базовый уровень" />
                     {selected
