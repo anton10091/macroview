@@ -338,7 +338,7 @@ const GRAPH_DESCRIPTIONS = {
     body: 'Агрегированный индекс качества образования на основе данных PISA и UNESCO. Отражает реальный уровень подготовки рабочей силы, а не только формальный охват образованием.',
     bullets: [
       { color: '#15803d', text: 'Высокий индекс качества означает, что выпускники способны применять знания на практике — это критически важно для высокотехнологичных секторов.' },
-      { color: '#0066FF', text: 'Разрыв между охватом и качеством образования (много дипломов, низкий PISA) сигнализирует о структурных проблемах рынка труда.' },
+      { color: '#0066FF', text: 'Разрыв между охватом и качеством образования сигнализирует о структурных проблемах рынка труда.' },
       { color: '#d97706', text: 'Страны с быстро растущим индексом качества — кандидаты на технологический рывок и привлечение иностранных инвестиций в R&D.' },
     ],
     source: 'PISA (OECD) · UNESCO Institute for Statistics',
@@ -349,7 +349,7 @@ const GRAPH_DESCRIPTIONS = {
     bullets: [
       { color: '#15803d', text: 'Низкая зарплата при высоком качестве образования — признак недооценённого рынка труда с потенциалом роста производительности.' },
       { color: '#0066FF', text: 'Индекс привлекательности выше 70 означает оптимальное соотношение стоимости, квалификации и гибкости рабочей силы.' },
-      { color: '#d97706', text: 'Быстрый рост зарплат без роста производительности — сигнал перегрева: возможно снижение конкурентоспособности экспорта.' },
+      { color: '#d97706', text: 'Быстрый рост зарплат без роста производительности — сигнал перегрева и возможного снижения конкурентоспособности.' },
     ],
     source: 'ILO · World Bank · национальные статистические службы',
   },
@@ -358,8 +358,8 @@ const GRAPH_DESCRIPTIONS = {
     body: 'Human Capital Index — агрегированный показатель качества человеческого капитала. Объединяет демографию, рабочую силу, образование и рынок труда в единую оценку 0–100.',
     bullets: [
       { color: '#15803d', text: 'HCI выше 70 — страна формирует высококвалифицированную рабочую силу, способную поддерживать рост производительности и инновации.' },
-      { color: '#0066FF', text: 'Сравнение с США (базовый уровень 100) показывает относительный разрыв и потенциал конвергенции при правильной политике.' },
-      { color: '#d97706', text: 'Низкий HCI при высоком ВВП на душу населения — признак ресурсной зависимости: рост не подкреплён качественным человеческим капиталом.' },
+      { color: '#0066FF', text: 'Сравнение с США показывает относительный разрыв и потенциал конвергенции при правильной политике.' },
+      { color: '#d97706', text: 'Низкий HCI при высоком ВВП на душу населения — признак ресурсной зависимости.' },
     ],
     source: 'World Bank Human Capital Project · UN HDR',
   },
@@ -371,15 +371,11 @@ function GraphDescription({ type }) {
   return (
     <div style={{ background: '#ffffff', border: '0.5px solid #e8e2d8', borderRadius: '12px', padding: '20px 24px', fontFamily: 'Georgia, serif' }}>
       <div style={{ marginBottom: 12 }}>
-        <div style={{ fontSize: 11, color: '#9a948e', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'monospace', marginBottom: 5 }}>
-          О графике · {cfg.label}
-        </div>
+        <div style={{ fontSize: 11, color: '#9a948e', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'monospace', marginBottom: 5 }}>О графике · {cfg.label}</div>
         <p style={{ fontSize: 13, color: '#4a4540', lineHeight: 1.75, margin: 0 }}>{cfg.body}</p>
       </div>
       <div style={{ borderTop: '0.5px solid #e8e2d8', paddingTop: 14 }}>
-        <div style={{ fontSize: 11, color: '#9a948e', fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
-          Что это значит для инвестора
-        </div>
+        <div style={{ fontSize: 11, color: '#9a948e', fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>Что это значит для инвестора</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {cfg.bullets.map(({ color, text }, i) => (
             <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
@@ -392,6 +388,132 @@ function GraphDescription({ type }) {
       <div style={{ marginTop: 14, padding: '8px 12px', background: '#f0f4f9', borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ fontSize: 11, color: '#6a8ec8', fontFamily: 'monospace' }}>Источник: {cfg.source}</span>
         <span style={{ fontSize: 11, color: '#9a948e', fontFamily: 'monospace' }}>Факт + прогноз</span>
+      </div>
+    </div>
+  )
+}
+
+const ANALYTICS_MOCK = {
+  population: [
+    { id: 'pop-india-2024', title: 'Индия обогнала Китай: демографический разворот и его последствия для инвесторов', excerpt: 'Впервые в истории население Индии превысило население Китая. Разбираем что это значит для рынков капитала, недвижимости и потребительского сектора.', date: '2024-11-15', tags: ['Индия', 'Китай', 'демография'], read_time: 8 },
+    { id: 'pop-aging-europe-2024', title: 'Старение Европы: как демографический кризис меняет пенсионные системы', excerpt: 'Германия, Испания и Португалия теряют трудоспособное население. Анализ структурных рисков и возможностей для инвестиций в здравоохранение.', date: '2024-10-02', tags: ['Европа', 'пенсии', 'риски'], read_time: 6 },
+    { id: 'pop-southeast-asia-2024', title: 'Демографический дивиденд Юго-Восточной Азии: Вьетнам, Индонезия, Малайзия', excerpt: 'Молодое население и растущий средний класс — главный актив региона на следующие 20 лет. Кто выиграет больше всех?', date: '2024-09-18', tags: ['ЮВА', 'рост', 'средний класс'], read_time: 7 },
+    { id: 'pop-uae-migrants-2024', title: 'ОАЭ: 90% населения — мигранты. Устойчива ли эта модель?', excerpt: 'Уникальная демографическая структура ОАЭ создаёт особые риски и возможности. Разбираем зависимость экономики от иностранной рабочей силы.', date: '2024-08-30', tags: ['ОАЭ', 'миграция', 'риски'], read_time: 5 },
+    { id: 'pop-russia-decline-2024', title: 'Демографический кризис России: прогноз до 2035 и инвестиционные импликации', excerpt: 'Убыль населения, старение и миграция — три фактора, которые определят экономику России на ближайшее десятилетие.', date: '2024-07-12', tags: ['Россия', 'убыль', 'прогноз'], read_time: 9 },
+    { id: 'pop-china-shrink-2023', title: 'Китай начал сокращаться: первое падение населения за 60 лет', excerpt: 'В 2023 году население Китая впервые сократилось. Что это означает для второй экономики мира и глобальных цепочек поставок?', date: '2024-06-05', tags: ['Китай', 'сокращение', 'ВВП'], read_time: 7 },
+    { id: 'pop-georgia-growth-2024', title: 'Грузия: неожиданный демографический рост на фоне миграционного притока', excerpt: 'Приток россиян, украинцев и номадов изменил демографию Грузии. Анализ влияния на рынок недвижимости и потребительский спрос.', date: '2024-05-20', tags: ['Грузия', 'миграция', 'недвижимость'], read_time: 6 },
+    { id: 'pop-uzbekistan-youth-2024', title: 'Узбекистан: самая молодая нация СНГ и потенциал роста', excerpt: 'Средний возраст населения — 28 лет. Разбираем как демографический дивиденд Узбекистана трансформируется в экономические возможности.', date: '2024-04-08', tags: ['Узбекистан', 'молодёжь', 'рост'], read_time: 5 },
+  ],
+  workforce: [
+    { id: 'wf-youth-unemployment-2024', title: 'Молодёжная безработица в развивающихся странах: структурная проблема или временный кризис?', excerpt: 'В Испании и Турции каждый четвёртый молодой человек без работы. Анализ причин и долгосрочных последствий для экономического роста.', date: '2024-11-01', tags: ['безработица', 'молодёжь', 'риски'], read_time: 7 },
+    { id: 'wf-uae-labor-2024', title: 'Рынок труда ОАЭ: высокая активность при уязвимой структуре', excerpt: 'Доля рабочей силы в ОАЭ одна из самых высоких в мире, но 88% составляют иностранцы. Что это означает для устойчивости экономики?', date: '2024-09-15', tags: ['ОАЭ', 'рынок труда', 'структура'], read_time: 6 },
+    { id: 'wf-automation-2024', title: 'Автоматизация против занятости: кто пострадает больше всего к 2030 году?', excerpt: 'МОТ прогнозирует замещение 85 млн рабочих мест к 2025 году. Анализируем какие страны наиболее уязвимы и где лучшая защита.', date: '2024-08-20', tags: ['автоматизация', 'занятость', 'прогноз'], read_time: 8 },
+    { id: 'wf-india-dividend-2024', title: 'Демографический дивиденд Индии: 600 млн человек трудоспособного возраста', excerpt: 'К 2030 году Индия будет иметь крупнейшую рабочую силу в мире. Разбираем готова ли экономика страны использовать этот потенциал.', date: '2024-07-05', tags: ['Индия', 'рабочая сила', 'потенциал'], read_time: 7 },
+  ],
+  edu_structure: [
+    { id: 'edu-asia-boom-2024', title: 'Образовательный бум Азии: Китай и Индия производят больше инженеров чем весь западный мир', excerpt: 'Ежегодно в Китае выпускается 4.7 млн инженеров. Анализируем как это меняет глобальный технологический баланс.', date: '2024-10-10', tags: ['образование', 'Азия', 'технологии'], read_time: 7 },
+    { id: 'edu-russia-brain-drain-2024', title: 'Утечка мозгов из России: масштаб и последствия для человеческого капитала', excerpt: 'С 2022 года Россию покинули сотни тысяч специалистов с высшим образованием. Оцениваем долгосрочный ущерб для экономики.', date: '2024-09-01', tags: ['Россия', 'миграция', 'образование'], read_time: 8 },
+  ],
+  edu_quality: [
+    { id: 'pisa-2023-results', title: 'Результаты PISA 2023: кто лидирует и что это значит для инвесторов', excerpt: 'Сингапур, Япония и Корея на вершине. Анализируем корреляцию между результатами PISA и долгосрочным экономическим ростом.', date: '2024-08-15', tags: ['PISA', 'образование', 'рейтинг'], read_time: 6 },
+  ],
+  labor_value: [
+    { id: 'wages-sea-2024', title: 'Зарплатная революция в Юго-Восточной Азии: Вьетнам догоняет Китай', excerpt: 'Зарплаты во Вьетнаме выросли на 40% за 5 лет. Анализируем как это меняет карту производственных инвестиций в регионе.', date: '2024-11-05', tags: ['зарплаты', 'ЮВА', 'производство'], read_time: 6 },
+    { id: 'labor-index-2024', title: 'Индекс привлекательности рынков труда 2024: Грузия и Казахстан в топ-10', excerpt: 'Неожиданные лидеры по соотношению цена/качество рабочей силы. Разбираем методологию и инвестиционные выводы.', date: '2024-10-22', tags: ['индекс', 'рейтинг', 'инвестиции'], read_time: 5 },
+  ],
+  hci: [
+    { id: 'hci-world-bank-2024', title: 'Human Capital Index 2024: Россия падает, Казахстан растёт', excerpt: 'Всемирный банк обновил индекс человеческого капитала. Анализируем позиции стран из нашего покрытия и их инвестиционные импликации.', date: '2024-09-30', tags: ['HCI', 'рейтинг', 'человеческий капитал'], read_time: 7 },
+  ],
+}
+
+const SECTION_TAG_COLORS = {
+  'Индия': '#d97706', 'Китай': '#dc2626', 'Россия': '#7c3aed', 'ОАЭ': '#059669',
+  'Грузия': '#ea580c', 'Вьетнам': '#ca8a04', 'Узбекистан': '#f59e0b', 'Европа': '#0891b2',
+  'ЮВА': '#0d9488', 'демография': '#6366f1', 'рост': '#15803d', 'риски': '#dc2626',
+  'образование': '#2563eb', 'зарплаты': '#059669', 'HCI': '#1a3a6a',
+}
+
+function AnalyticsBlock({ section }) {
+  const [page, setPage] = React.useState(0)
+  const articles = ANALYTICS_MOCK[section] || []
+  const PER_PAGE = 4
+  const COLS = 4
+  const totalPages = Math.min(3, Math.ceil(articles.length / PER_PAGE))
+  const visible = articles.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE)
+
+  if (!articles.length) return null
+
+  return (
+    <div style={{ marginTop: 4 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: T.text, fontFamily: '-apple-system,sans-serif' }}>Аналитика по теме</div>
+          <div style={{ fontSize: 13, color: T.sub, marginTop: 2 }}>Исследования и разборы · {articles.length} материалов</div>
+        </div>
+        {totalPages > 1 && (
+          <div style={{ display: 'flex', gap: 6 }}>
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button key={i} onClick={() => setPage(i)} style={{
+                width: 32, height: 32, borderRadius: 8,
+                background: page === i ? T.accent : T.card,
+                color: page === i ? '#fff' : T.sub,
+                border: `1px solid ${page === i ? T.accent : T.border}`,
+                cursor: 'pointer', fontSize: 13, fontWeight: 600,
+                transition: 'all 0.15s',
+              }}>{i + 1}</button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${COLS}, 1fr)`, gap: 16 }}>
+        {visible.map(article => (
+          <div key={article.id} style={{
+            background: T.card, borderRadius: T.radius,
+            boxShadow: T.shadow, border: `1px solid ${T.border}`,
+            padding: 0, overflow: 'hidden', cursor: 'pointer',
+            transition: 'box-shadow 0.15s, transform 0.15s',
+            display: 'flex', flexDirection: 'column',
+          }}
+            onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,0,0,0.12)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+            onMouseLeave={e => { e.currentTarget.style.boxShadow = T.shadow; e.currentTarget.style.transform = 'none' }}
+          >
+            {/* Цветная плашка-заглушка вместо изображения */}
+            <div style={{
+              height: 120, background: `linear-gradient(135deg, #1a3a6a 0%, #2563eb 100%)`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+              position: 'relative',
+            }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.7)', fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                Аналитика
+              </div>
+              <div style={{ position: 'absolute', top: 10, right: 10, background: 'rgba(255,255,255,0.15)', borderRadius: 6, padding: '3px 8px', fontSize: 11, color: '#fff', fontFamily: 'monospace' }}>
+                {article.read_time} мин
+              </div>
+            </div>
+
+            <div style={{ padding: '16px 16px 12px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ fontSize: 11, color: T.sub, fontFamily: 'monospace', marginBottom: 8 }}>
+                {new Date(article.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: T.text, lineHeight: 1.4, marginBottom: 8, flex: 1, fontFamily: '-apple-system,sans-serif' }}>
+                {article.title}
+              </div>
+              <div style={{ fontSize: 12, color: T.sub, lineHeight: 1.5, marginBottom: 12, fontFamily: '-apple-system,sans-serif' }}>
+                {article.excerpt.length > 90 ? article.excerpt.slice(0, 90) + '…' : article.excerpt}
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                {article.tags.slice(0, 3).map(tag => (
+                  <span key={tag} style={{
+                    fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 5, fontFamily: 'monospace',
+                    background: SECTION_TAG_COLORS[tag] ? `${SECTION_TAG_COLORS[tag]}18` : '#f0f4f9',
+                    color: SECTION_TAG_COLORS[tag] || T.sub,
+                  }}>{tag}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   )
@@ -630,12 +752,7 @@ export default function MacroIndicatorsPage() {
                       />
                     ))}
                   </div>
-                  <Card>
-                    <SectionTitle label="Доля рабочего возраста (15–64)" sub="% от общего населения" />
-                    <div style={{ overflowX: 'hidden' }}>
-                      <LineChart datasets={makeDatasets(popData, 'population_15_64')} yLabel="%"  />
-                    </div>
-                  </Card>
+                  <AnalyticsBlock section="population" />
                 </div>
               )}
 
@@ -654,6 +771,7 @@ export default function MacroIndicatorsPage() {
                       <LineChart datasets={makeDatasets(wfData, 'youth_unemployment')} yLabel="%"  />
                     </div>
                   </Card>
+                  <AnalyticsBlock section="workforce" />
                 </div>
               )}
 
@@ -683,6 +801,7 @@ export default function MacroIndicatorsPage() {
                       ))}
                     </div>
                   </Card>
+                  <AnalyticsBlock section="edu_structure" />
                 </div>
               )}
 
@@ -718,6 +837,7 @@ export default function MacroIndicatorsPage() {
                       )
                     })}
                   </div>
+                  <AnalyticsBlock section="edu_quality" />
                 </div>
               )}
 
@@ -738,6 +858,7 @@ export default function MacroIndicatorsPage() {
                       .map(({ slug, val }) => <RankBar key={slug} slug={slug} val={val ?? 0} />)
                     }
                   </Card>
+                  <AnalyticsBlock section="labor_value" />
                 </div>
               )}
 
@@ -802,6 +923,7 @@ export default function MacroIndicatorsPage() {
                       )
                     })}
                   </div>
+                  <AnalyticsBlock section="hci" />
                 </div>
               )}
             </>
