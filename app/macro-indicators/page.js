@@ -393,17 +393,8 @@ function GraphDescription({ type }) {
   )
 }
 
-const ANALYTICS_MOCK = {
-  population: [
-    { id: 'pop-india-2024', title: 'Индия обогнала Китай: демографический разворот и его последствия для инвесторов', excerpt: 'Впервые в истории население Индии превысило население Китая. Разбираем что это значит для рынков капитала, недвижимости и потребительского сектора.', date: '2024-11-15', tags: ['Индия', 'Китай', 'демография'], read_time: 8 },
-    { id: 'pop-aging-europe-2024', title: 'Старение Европы: как демографический кризис меняет пенсионные системы', excerpt: 'Германия, Испания и Португалия теряют трудоспособное население. Анализ структурных рисков и возможностей для инвестиций в здравоохранение.', date: '2024-10-02', tags: ['Европа', 'пенсии', 'риски'], read_time: 6 },
-    { id: 'pop-southeast-asia-2024', title: 'Демографический дивиденд Юго-Восточной Азии: Вьетнам, Индонезия, Малайзия', excerpt: 'Молодое население и растущий средний класс — главный актив региона на следующие 20 лет. Кто выиграет больше всех?', date: '2024-09-18', tags: ['ЮВА', 'рост', 'средний класс'], read_time: 7 },
-    { id: 'pop-uae-migrants-2024', title: 'ОАЭ: 90% населения — мигранты. Устойчива ли эта модель?', excerpt: 'Уникальная демографическая структура ОАЭ создаёт особые риски и возможности. Разбираем зависимость экономики от иностранной рабочей силы.', date: '2024-08-30', tags: ['ОАЭ', 'миграция', 'риски'], read_time: 5 },
-    { id: 'pop-russia-decline-2024', title: 'Демографический кризис России: прогноз до 2035 и инвестиционные импликации', excerpt: 'Убыль населения, старение и миграция — три фактора, которые определят экономику России на ближайшее десятилетие.', date: '2024-07-12', tags: ['Россия', 'убыль', 'прогноз'], read_time: 9 },
-    { id: 'pop-china-shrink-2023', title: 'Китай начал сокращаться: первое падение населения за 60 лет', excerpt: 'В 2023 году население Китая впервые сократилось. Что это означает для второй экономики мира и глобальных цепочек поставок?', date: '2024-06-05', tags: ['Китай', 'сокращение', 'ВВП'], read_time: 7 },
-    { id: 'pop-georgia-growth-2024', title: 'Грузия: неожиданный демографический рост на фоне миграционного притока', excerpt: 'Приток россиян, украинцев и номадов изменил демографию Грузии. Анализ влияния на рынок недвижимости и потребительский спрос.', date: '2024-05-20', tags: ['Грузия', 'миграция', 'недвижимость'], read_time: 6 },
-    { id: 'pop-uzbekistan-youth-2024', title: 'Узбекистан: самая молодая нация СНГ и потенциал роста', excerpt: 'Средний возраст населения — 28 лет. Разбираем как демографический дивиденд Узбекистана трансформируется в экономические возможности.', date: '2024-04-08', tags: ['Узбекистан', 'молодёжь', 'рост'], read_time: 5 },
-  ],
+// Моки для вкладок без своей таблицы БД (временно, до создания отдельных таблиц)
+const ANALYTICS_MOCK_OTHER = {
   workforce: [
     { id: 'wf-youth-unemployment-2024', title: 'Молодёжная безработица в развивающихся странах: структурная проблема или временный кризис?', excerpt: 'В Испании и Турции каждый четвёртый молодой человек без работы. Анализ причин и долгосрочных последствий для экономического роста.', date: '2024-11-01', tags: ['безработица', 'молодёжь', 'риски'], read_time: 7 },
     { id: 'wf-uae-labor-2024', title: 'Рынок труда ОАЭ: высокая активность при уязвимой структуре', excerpt: 'Доля рабочей силы в ОАЭ одна из самых высоких в мире, но 88% составляют иностранцы. Что это означает для устойчивости экономики?', date: '2024-09-15', tags: ['ОАЭ', 'рынок труда', 'структура'], read_time: 6 },
@@ -435,10 +426,38 @@ const SECTION_TAG_COLORS = {
 
 function AnalyticsBlock({ section }) {
   const [page, setPage] = React.useState(0)
-  const articles = ANALYTICS_MOCK[section] || []
+  const [articles, setArticles] = React.useState([])
+  const [loadingArticles, setLoadingArticles] = React.useState(false)
   const PER_PAGE = 3
+
+  React.useEffect(() => {
+    setPage(0)
+    if (section === 'population') {
+      setLoadingArticles(true)
+      supabase
+        .from('population_analytics')
+        .select('id, slug, title, excerpt, cover_url, read_time, tags, gradient_index, date, section_tag')
+        .eq('is_published', true)
+        .order('is_featured', { ascending: false })
+        .order('date', { ascending: false })
+        .limit(9)
+        .then(({ data, error }) => {
+          if (!error && data) setArticles(data)
+          setLoadingArticles(false)
+        })
+    } else {
+      setArticles(ANALYTICS_MOCK_OTHER[section] || [])
+    }
+  }, [section])
+
   const totalPages = Math.min(3, Math.ceil(articles.length / PER_PAGE))
   const visible = articles.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE)
+
+  if (loadingArticles) return (
+    <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: T.radius, padding: '32px 24px', textAlign: 'center', color: T.sub, fontSize: 14, fontFamily: '-apple-system,sans-serif' }}>
+      Загрузка аналитики...
+    </div>
+  )
 
   if (!articles.length) return null
 
