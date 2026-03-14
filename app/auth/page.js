@@ -89,6 +89,7 @@ export default function AuthPage() {
       setError(error.message)
     } else {
       setSuccess('Письмо с подтверждением отправлено на ' + email)
+      setTimeout(() => router.push(`/confirm?email=${encodeURIComponent(email)}`), 800)
     }
     setLoading(false)
   }
