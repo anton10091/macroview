@@ -1,5 +1,5 @@
 'use client'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, Suspense } from 'next/navigation'
 import Link from 'next/link'
 
 const T = {
@@ -12,7 +12,7 @@ const T = {
   shadow: '0 2px 12px rgba(0,0,0,0.06)',
 }
 
-export default function ConfirmPage() {
+function ConfirmContent() {
   const params = useSearchParams()
   const email = params.get('email') || 'вашу почту'
 
@@ -76,5 +76,13 @@ export default function ConfirmPage() {
         </Link>
       </div>
     </div>
+  )
+}
+
+export default function ConfirmPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#F5F7FA' }} />}>
+      <ConfirmContent />
+    </Suspense>
   )
 }
