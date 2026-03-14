@@ -24,7 +24,10 @@ function TelegramLoginButton({ onAuth }) {
   const ref = useRef(null)
 
   useEffect(() => {
-    if (!ref.current) return
+    // Назначаем СРАЗУ до загрузки скрипта
+    window.onTelegramAuth = (user) => onAuth(user)
+
+    if (!ref.current || ref.current.querySelector('script')) return
     const script = document.createElement('script')
     script.src = 'https://telegram.org/js/telegram-widget.js?22'
     script.setAttribute('data-telegram-login', TELEGRAM_BOT_NAME)
@@ -35,9 +38,8 @@ function TelegramLoginButton({ onAuth }) {
     script.async = true
     ref.current.appendChild(script)
 
-    window.onTelegramAuth = (user) => onAuth(user)
     return () => { delete window.onTelegramAuth }
-  }, [])
+  }, [onAuth])
 
   return <div ref={ref} />
 }
