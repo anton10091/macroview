@@ -502,12 +502,13 @@ function AnalyticsBlock({ section }) {
         {visible.map((article, idx) => {
           const globalIdx = page * PER_PAGE + idx
           return (
-            <div key={article.id} style={{
+            <a key={article.id} href={`/analytics/${article.slug || article.id}`} target="_blank" rel="noopener noreferrer" style={{
               background: T.card, borderRadius: T.radius,
               boxShadow: T.shadow, border: `1px solid ${T.border}`,
               overflow: 'hidden', cursor: 'pointer',
               display: 'flex', flexDirection: 'column',
               transition: 'box-shadow 0.15s, transform 0.15s',
+              textDecoration: 'none',
             }}
               onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 28px rgba(0,0,0,0.13)'; e.currentTarget.style.transform = 'translateY(-3px)' }}
               onMouseLeave={e => { e.currentTarget.style.boxShadow = T.shadow; e.currentTarget.style.transform = 'none' }}
@@ -554,7 +555,7 @@ function AnalyticsBlock({ section }) {
                   ))}
                 </div>
               </div>
-            </div>
+            </a>
           )
         })}
       </div>
