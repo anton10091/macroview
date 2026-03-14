@@ -147,7 +147,7 @@ export default function OnboardingPage() {
                   fontSize: 10, fontWeight: 700, color: s.id <= step ? '#fff' : T.sub,
                   transition: 'all 0.3s',
                 }}>{s.id < step ? '✓' : s.id}</div>
-                <span style={{ fontSize: 11, color: s.id === step ? T.accent : T.sub, fontFamily: '-apple-system,sans-serif', display: window?.innerWidth > 500 ? 'block' : 'none' }}>
+                <span style={{ fontSize: 11, color: s.id === step ? T.accent : T.sub, fontFamily: '-apple-system,sans-serif' }}>
                   {s.title.split(' ')[0]}
                 </span>
               </div>
