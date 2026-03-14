@@ -118,13 +118,12 @@ function AuthModal({ mode: initialMode, onClose, onSuccess }) {
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
-      {/* Фон */}
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(10,20,40,0.55)', backdropFilter: 'blur(4px)' }} />
+    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+      {/* Фон — только он закрывает модал */}
+      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(10,20,40,0.55)', backdropFilter: 'blur(4px)', cursor: 'pointer' }} />
 
-      {/* Карточка */}
-      <div style={{ position: 'relative', background: T.card, borderRadius: 20, boxShadow: '0 20px 60px rgba(0,0,0,0.2)', width: '100%', maxWidth: 420, padding: '32px 28px' }}>
+      {/* Карточка — stopPropagation чтобы клик внутри не всплывал */}
+      <div onClick={(e) => e.stopPropagation()} style={{ position: 'relative', background: T.card, borderRadius: 20, boxShadow: '0 20px 60px rgba(0,0,0,0.2)', width: '100%', maxWidth: 420, padding: '32px 28px' }}>
         <button onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, width: 32, height: 32, borderRadius: '50%', border: `1px solid ${T.border}`, background: T.bg, cursor: 'pointer', fontSize: 16, color: T.sub, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
 
         {/* Лого */}
