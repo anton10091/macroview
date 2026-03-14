@@ -436,29 +436,42 @@ const SECTION_TAG_COLORS = {
 function AnalyticsBlock({ section }) {
   const [page, setPage] = React.useState(0)
   const articles = ANALYTICS_MOCK[section] || []
-  const PER_PAGE = 4
-  const COLS = 4
+  const PER_PAGE = 3
   const totalPages = Math.min(3, Math.ceil(articles.length / PER_PAGE))
   const visible = articles.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE)
 
   if (!articles.length) return null
 
+  const GRADIENTS = [
+    'linear-gradient(135deg, #0f1f3d 0%, #1a3a6a 60%, #2563eb 100%)',
+    'linear-gradient(135deg, #1a0f3d 0%, #3a1a6a 60%, #7c3aed 100%)',
+    'linear-gradient(135deg, #0f2d1f 0%, #0f6e56 60%, #1d9e75 100%)',
+    'linear-gradient(135deg, #2d1a0f 0%, #6a3a1a 60%, #d97706 100%)',
+    'linear-gradient(135deg, #1f0f2d 0%, #6a1a3a 60%, #db2777 100%)',
+    'linear-gradient(135deg, #0f1f2d 0%, #0f4a6a 60%, #0891b2 100%)',
+    'linear-gradient(135deg, #1a1f0f 0%, #3a6a1a 60%, #16a34a 100%)',
+    'linear-gradient(135deg, #2d1f0f 0%, #6a4a1a 60%, #ca8a04 100%)',
+  ]
+
   return (
-    <div style={{ marginTop: 4 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: T.text, fontFamily: '-apple-system,sans-serif' }}>Аналитика по теме</div>
-          <div style={{ fontSize: 13, color: T.sub, marginTop: 2 }}>Исследования и разборы · {articles.length} материалов</div>
+    <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: T.radius, padding: '20px 24px', boxShadow: T.shadow }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ width: 4, height: 36, background: T.accent, borderRadius: 2, flexShrink: 0 }} />
+          <div>
+            <div style={{ fontSize: 17, fontWeight: 700, color: T.text, fontFamily: '-apple-system,sans-serif', lineHeight: 1.2 }}>Аналитика по теме</div>
+            <div style={{ fontSize: 12, color: T.sub, marginTop: 3, fontFamily: '-apple-system,sans-serif' }}>Исследования и разборы · {articles.length} материалов</div>
+          </div>
         </div>
         {totalPages > 1 && (
           <div style={{ display: 'flex', gap: 6 }}>
             {Array.from({ length: totalPages }).map((_, i) => (
               <button key={i} onClick={() => setPage(i)} style={{
                 width: 32, height: 32, borderRadius: 8,
-                background: page === i ? T.accent : T.card,
+                background: page === i ? T.accent : 'transparent',
                 color: page === i ? '#fff' : T.sub,
                 border: `1px solid ${page === i ? T.accent : T.border}`,
-                cursor: 'pointer', fontSize: 13, fontWeight: 600,
+                cursor: 'pointer', fontSize: 13, fontWeight: 700,
                 transition: 'all 0.15s',
               }}>{i + 1}</button>
             ))}
@@ -466,54 +479,65 @@ function AnalyticsBlock({ section }) {
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${COLS}, 1fr)`, gap: 16 }}>
-        {visible.map(article => (
-          <div key={article.id} style={{
-            background: T.card, borderRadius: T.radius,
-            boxShadow: T.shadow, border: `1px solid ${T.border}`,
-            padding: 0, overflow: 'hidden', cursor: 'pointer',
-            transition: 'box-shadow 0.15s, transform 0.15s',
-            display: 'flex', flexDirection: 'column',
-          }}
-            onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,0,0,0.12)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
-            onMouseLeave={e => { e.currentTarget.style.boxShadow = T.shadow; e.currentTarget.style.transform = 'none' }}
-          >
-            {/* Цветная плашка-заглушка вместо изображения */}
-            <div style={{
-              height: 120, background: `linear-gradient(135deg, #1a3a6a 0%, #2563eb 100%)`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-              position: 'relative',
-            }}>
-              <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.7)', fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                Аналитика
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+        {visible.map((article, idx) => {
+          const globalIdx = page * PER_PAGE + idx
+          return (
+            <div key={article.id} style={{
+              background: T.card, borderRadius: T.radius,
+              boxShadow: T.shadow, border: `1px solid ${T.border}`,
+              overflow: 'hidden', cursor: 'pointer',
+              display: 'flex', flexDirection: 'column',
+              transition: 'box-shadow 0.15s, transform 0.15s',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 28px rgba(0,0,0,0.13)'; e.currentTarget.style.transform = 'translateY(-3px)' }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = T.shadow; e.currentTarget.style.transform = 'none' }}
+            >
+              <div style={{
+                height: 160, background: GRADIENTS[globalIdx % GRADIENTS.length],
+                position: 'relative', flexShrink: 0,
+              }}>
+                <div style={{
+                  position: 'absolute', top: 12, left: 14,
+                  background: 'rgba(255,255,255,0.15)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: 6, padding: '3px 10px',
+                  fontSize: 11, fontWeight: 600, color: '#fff',
+                  fontFamily: '-apple-system,sans-serif',
+                }}>Аналитика</div>
+                <div style={{
+                  position: 'absolute', top: 12, right: 14,
+                  background: 'rgba(0,0,0,0.35)',
+                  borderRadius: 6, padding: '3px 8px',
+                  fontSize: 11, fontWeight: 600, color: '#fff', fontFamily: 'monospace',
+                }}>{article.read_time} мин</div>
               </div>
-              <div style={{ position: 'absolute', top: 10, right: 10, background: 'rgba(255,255,255,0.15)', borderRadius: 6, padding: '3px 8px', fontSize: 11, color: '#fff', fontFamily: 'monospace' }}>
-                {article.read_time} мин
-              </div>
-            </div>
 
-            <div style={{ padding: '16px 16px 12px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <div style={{ fontSize: 11, color: T.sub, fontFamily: 'monospace', marginBottom: 8 }}>
-                {new Date(article.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
-              </div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: T.text, lineHeight: 1.4, marginBottom: 8, flex: 1, fontFamily: '-apple-system,sans-serif' }}>
-                {article.title}
-              </div>
-              <div style={{ fontSize: 12, color: T.sub, lineHeight: 1.5, marginBottom: 12, fontFamily: '-apple-system,sans-serif' }}>
-                {article.excerpt.length > 90 ? article.excerpt.slice(0, 90) + '…' : article.excerpt}
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-                {article.tags.slice(0, 3).map(tag => (
-                  <span key={tag} style={{
-                    fontSize: 10, fontWeight: 600, padding: '2px 7px', borderRadius: 5, fontFamily: 'monospace',
-                    background: SECTION_TAG_COLORS[tag] ? `${SECTION_TAG_COLORS[tag]}18` : '#f0f4f9',
-                    color: SECTION_TAG_COLORS[tag] || T.sub,
-                  }}>{tag}</span>
-                ))}
+              <div style={{ padding: '14px 16px', flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ fontSize: 11, color: T.sub, fontFamily: 'monospace' }}>
+                  {new Date(article.date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: T.text, lineHeight: 1.4, fontFamily: '-apple-system,sans-serif' }}>
+                  {article.title}
+                </div>
+                <div style={{ fontSize: 12, color: T.sub, lineHeight: 1.55, fontFamily: '-apple-system,sans-serif', flex: 1 }}>
+                  {article.excerpt.length > 100 ? article.excerpt.slice(0, 100) + '...' : article.excerpt}
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 4 }}>
+                  {article.tags.slice(0, 3).map(tag => (
+                    <span key={tag} style={{
+                      fontSize: 11, fontWeight: 500, padding: '3px 8px', borderRadius: 5,
+                      fontFamily: '-apple-system,sans-serif',
+                      background: SECTION_TAG_COLORS[tag] ? `${SECTION_TAG_COLORS[tag]}15` : '#f0f4f9',
+                      color: SECTION_TAG_COLORS[tag] || T.sub,
+                      border: `1px solid ${SECTION_TAG_COLORS[tag] ? `${SECTION_TAG_COLORS[tag]}30` : T.border}`,
+                    }}>{tag}</span>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
@@ -742,7 +766,8 @@ export default function MacroIndicatorsPage() {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: 14 }}>
                     {selected.map(slug => (
                       <StatCard key={slug} slug={slug}
-                        value={(() => { const v = getLatest(popData, slug, 'population_total'); return v != null ? Number(v).toFixed(1) : '—' })()} unit="млн" sub={`население ${getLatestYear(popData, slug) ?? '—'}`}
+                        value={(() => { const v = getLatest(popData, slug, 'population_total'); return v != null ? Number(v).toFixed(1) : '—' })()}
+                        unit="млн" sub={`население ${getLatestYear(popData, slug) ?? '—'}`}
                         sparkData={(popData[slug]||[]).map(r => ({ value: r.population_total }))}
                       />
                     ))}
