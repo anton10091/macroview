@@ -189,6 +189,8 @@ function ArticleEditor({ articleId, onSaved }) {
     reader.readAsText(file)
     e.target.value = ''
   }
+
+  const field = (label, key, type = 'text', extra = {}) => (
     <div style={{ marginBottom: 14 }}>
       <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: T.sub, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 5 }}>{label}</label>
       <input type={type} value={form[key] || ''} onChange={e => set(key, type === 'number' ? Number(e.target.value) : e.target.value)} style={inp(extra)} />
