@@ -984,14 +984,7 @@ export default function MacroIndicatorsPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                   <Card>
                     <SectionTitle label="Расходы на R&D (% от ВВП)" sub="1996–2023 · World Bank / UNESCO UIS" />
-                    <LineChart datasets={(() => {
-                      return selected.map(slug => {
-                        const rows = (rdData[slug] || [])
-                          .map(r => ({ year: r.year, value: r.rd_pct_gdp }))
-                          .filter(r => r.value != null)
-                        return { slug, label: COUNTRY_NAMES[slug], color: COUNTRY_COLORS[slug], data: rows }
-                      }).filter(d => d.data.length > 0)
-                    })()} yLabel="%" />
+                    <LineChart datasets={makeDatasets(rdData, 'rd_pct_gdp')} yLabel="%" />
                   </Card>
 
                   <GraphDescription type="rd" />
