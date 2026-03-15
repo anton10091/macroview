@@ -168,7 +168,27 @@ function ArticleEditor({ articleId, onSaved }) {
 
   if (loading) return <div style={{ color: T.sub }}>Загрузка...</div>
 
-  const field = (label, key, type = 'text', extra = {}) => (
+  const importRef = useRef(null)
+
+  const handleImport = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result)
+        if (data.title) setForm(prev => ({ ...prev, ...data }))
+        if (data.tags) setTagsStr(Array.isArray(data.tags) ? data.tags.join(', ') : data.tags)
+        if (data.country_slugs) setCountriesStr(Array.isArray(data.country_slugs) ? data.country_slugs.join(', ') : data.country_slugs)
+        if (data.key_takeaways) setTakeawaysStr(Array.isArray(data.key_takeaways) ? data.key_takeaways.join('\n') : data.key_takeaways)
+        if (data.seo_keywords) setSeoKwStr(Array.isArray(data.seo_keywords) ? data.seo_keywords.join(', ') : data.seo_keywords)
+        if (data.body_sections) setSectionsStr(JSON.stringify(data.body_sections, null, 2))
+        alert('Импорт успешен!')
+      } catch { alert('Ошибка: неверный JSON формат') }
+    }
+    reader.readAsText(file)
+    e.target.value = ''
+  }
     <div style={{ marginBottom: 14 }}>
       <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: T.sub, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 5 }}>{label}</label>
       <input type={type} value={form[key] || ''} onChange={e => set(key, type === 'number' ? Number(e.target.value) : e.target.value)} style={inp(extra)} />
@@ -196,6 +216,10 @@ function ArticleEditor({ articleId, onSaved }) {
         <div style={{ fontSize: 16, fontWeight: 700, color: T.text }}>{articleId ? 'Редактирование статьи' : 'Новая статья'}</div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           {msg && <span style={{ fontSize: 13, color: saved ? '#059669' : '#DC2626', fontFamily: '-apple-system,sans-serif' }}>{msg}</span>}
+          <input ref={importRef} type="file" accept=".json" onChange={handleImport} style={{ display: 'none' }} />
+          <button onClick={() => importRef.current?.click()} style={{ padding: '8px 14px', borderRadius: 8, border: `1px solid ${T.border}`, background: T.card, fontSize: 13, cursor: 'pointer', color: T.text }}>
+            Импорт JSON
+          </button>
           <button onClick={onSaved} style={{ padding: '8px 14px', borderRadius: 8, border: `1px solid ${T.border}`, background: T.card, fontSize: 13, cursor: 'pointer', color: T.sub }}>Отмена</button>
           <button onClick={handleSave} disabled={saving} style={{ padding: '8px 20px', borderRadius: 8, background: saved ? '#059669' : T.accent, border: 'none', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: saving ? 0.7 : 1 }}>
             {saving ? 'Сохраняем...' : 'Сохранить'}
