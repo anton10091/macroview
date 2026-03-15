@@ -5,9 +5,10 @@ import { usePathname } from 'next/navigation'
 export function Navbar() {
   const pathname = usePathname()
   const links = [
-    { href: '/diary',   label: 'Аналитика' },
-    { href: '/profile', label: 'Профиль' },
-    { href: '/advisor', label: 'Советник ↗', accent: true },
+    { href: '/macro-indicators', label: 'Индикаторы' },
+    { href: '/diary',            label: 'Аналитика' },
+    { href: '/profile',          label: 'Профиль' },
+    { href: '/advisor',          label: 'Советник ↗', accent: true },
   ]
   return (
     <nav style={{
