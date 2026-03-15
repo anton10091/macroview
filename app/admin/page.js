@@ -118,6 +118,28 @@ function ArticleEditor({ articleId, onSaved }) {
   const [seoKwStr, setSeoKwStr] = useState('')
   const [sectionsStr, setSectionsStr] = useState('')
 
+  const importRef = useRef(null)
+
+  const handleImport = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result)
+        if (data.title) setForm(prev => ({ ...prev, ...data }))
+        if (data.tags) setTagsStr(Array.isArray(data.tags) ? data.tags.join(', ') : data.tags)
+        if (data.country_slugs) setCountriesStr(Array.isArray(data.country_slugs) ? data.country_slugs.join(', ') : data.country_slugs)
+        if (data.key_takeaways) setTakeawaysStr(Array.isArray(data.key_takeaways) ? data.key_takeaways.join('\n') : data.key_takeaways)
+        if (data.seo_keywords) setSeoKwStr(Array.isArray(data.seo_keywords) ? data.seo_keywords.join(', ') : data.seo_keywords)
+        if (data.body_sections) setSectionsStr(JSON.stringify(data.body_sections, null, 2))
+        alert('Импорт успешен!')
+      } catch { alert('Ошибка: неверный JSON формат') }
+    }
+    reader.readAsText(file)
+    e.target.value = ''
+  }
+
   useEffect(() => {
     if (!articleId) {
       setForm({ ...EMPTY_ARTICLE })
@@ -167,28 +189,6 @@ function ArticleEditor({ articleId, onSaved }) {
   }
 
   if (loading) return <div style={{ color: T.sub }}>Загрузка...</div>
-
-  const importRef = useRef(null)
-
-  const handleImport = (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      try {
-        const data = JSON.parse(ev.target.result)
-        if (data.title) setForm(prev => ({ ...prev, ...data }))
-        if (data.tags) setTagsStr(Array.isArray(data.tags) ? data.tags.join(', ') : data.tags)
-        if (data.country_slugs) setCountriesStr(Array.isArray(data.country_slugs) ? data.country_slugs.join(', ') : data.country_slugs)
-        if (data.key_takeaways) setTakeawaysStr(Array.isArray(data.key_takeaways) ? data.key_takeaways.join('\n') : data.key_takeaways)
-        if (data.seo_keywords) setSeoKwStr(Array.isArray(data.seo_keywords) ? data.seo_keywords.join(', ') : data.seo_keywords)
-        if (data.body_sections) setSectionsStr(JSON.stringify(data.body_sections, null, 2))
-        alert('Импорт успешен!')
-      } catch { alert('Ошибка: неверный JSON формат') }
-    }
-    reader.readAsText(file)
-    e.target.value = ''
-  }
 
   const field = (label, key, type = 'text', extra = {}) => (
     <div style={{ marginBottom: 14 }}>
