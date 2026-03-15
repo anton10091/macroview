@@ -393,6 +393,18 @@ function GraphDescription({ type }) {
   )
 }
 
+  rd: {
+    label: 'Наука и R&D',
+    body: 'Расходы на исследования и разработки (R&D) в % от ВВП — один из ключевых индикаторов инновационного потенциала страны по методологии Рея Далио. Данные охватывают 1996–2023 гг. по всем секторам: бизнес, государство, университеты, НКО.',
+    bullets: [
+      { color: '#15803d', text: 'R&D выше 2.5% ВВП с растущей динамикой — признак страны на подъёме: технологический рывок, рост производительности, экспортная конкурентоспособность.' },
+      { color: '#0066FF', text: 'Мета-анализ 65 стран: +1% R&D/ВВП → +0.9% долгосрочного роста ВВП с лагом 10–15 лет (Guellec & van Pottelsberghe, OECD).' },
+      { color: '#d97706', text: 'Высокий R&D необходим, но недостаточен: Япония в 1989 г. имела 3%+ R&D и крупнейший долговой пузырь в истории. R&D определяет потенциал — долговой цикл определяет, реализуется ли он.' },
+    ],
+    source: 'World Bank / UNESCO Institute for Statistics · Indicator GB.XPD.RSDV.GD.ZS',
+  },
+}
+
 // Моки для вкладок без своей таблицы БД (временно, до создания отдельных таблиц)
 const ANALYTICS_MOCK_OTHER = {
   workforce: [
@@ -608,6 +620,7 @@ export default function MacroIndicatorsPage() {
   const [eduQualData, setEduQualData]     = useState({})
   const [laborData, setLaborData]         = useState({})
   const [hciData, setHciData]             = useState({})
+  const [rdData, setRdData]               = useState({})
   const [loading, setLoading]             = useState(true)
 
   useEffect(() => {
@@ -621,8 +634,9 @@ export default function MacroIndicatorsPage() {
           supabase.from('education_quality').select('*').order('year').limit(2000),
           supabase.from('labor_cost_quality').select('*').order('year').limit(2000),
           supabase.from('human_capital_index').select('*').order('year').limit(2000),
+          supabase.from('rd_expenditure').select('*').order('year').limit(2000),
         ])
-        const [pop, wf, eduS, eduQ, labor, hci] = results.map(r => r.data || [])
+        const [pop, wf, eduS, eduQ, labor, hci, rd] = results.map(r => r.data || [])
         const group = rows => {
           const map = {}
           ;(rows||[]).forEach(r => { if (!map[r.country_slug]) map[r.country_slug]=[]; map[r.country_slug].push(r) })
@@ -630,6 +644,7 @@ export default function MacroIndicatorsPage() {
         }
         setPopData(group(pop)); setWfData(group(wf)); setEduStructData(group(eduS))
         setEduQualData(group(eduQ)); setLaborData(group(labor)); setHciData(group(hci))
+        setRdData(group(rd))
       } catch(e) {
         console.error('Ошибка загрузки:', e)
       } finally {
@@ -670,6 +685,7 @@ export default function MacroIndicatorsPage() {
     { id: 'edu_quality',   label: 'Качество',     icon: '📐' },
     { id: 'labor_value',   label: 'Рынок труда',  icon: '⚖️' },
     { id: 'hci',           label: 'Индекс HCI',   icon: '🏆' },
+    { id: 'rd',            label: 'Наука и R&D',  icon: '🔬' },
   ]
 
   return (
@@ -963,6 +979,72 @@ export default function MacroIndicatorsPage() {
                     })}
                   </div>
                   <AnalyticsBlock section="hci" />
+                </div>
+              )}
+
+              {activeSection === 'rd' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                  <Card>
+                    <SectionTitle label="Расходы на R&D (% от ВВП)" sub="1996–2023 · World Bank / UNESCO UIS" />
+                    <LineChart datasets={(() => {
+                      return selected.map(slug => {
+                        const rows = (rdData[slug] || [])
+                          .map(r => ({ year: r.year, value: r.rd_pct_gdp }))
+                          .filter(r => r.value != null)
+                        return { slug, label: COUNTRY_NAMES[slug], color: COUNTRY_COLORS[slug], data: rows }
+                      }).filter(d => d.data.length > 0)
+                    })()} yLabel="%" />
+                  </Card>
+
+                  <GraphDescription type="rd" />
+
+                  <Card>
+                    <SectionTitle label="Рейтинг стран по последним данным" sub="% от ВВП · последний доступный год" />
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      {selected
+                        .map(slug => {
+                          const rows = rdData[slug] || []
+                          const last = rows.filter(r => r.rd_pct_gdp != null).slice(-1)[0]
+                          return { slug, val: last?.rd_pct_gdp, year: last?.year }
+                        })
+                        .filter(r => r.val != null)
+                        .sort((a, b) => b.val - a.val)
+                        .map(({ slug, val, year }) => {
+                          const pct = Math.min(100, (val / 6) * 100)
+                          const color = COUNTRY_COLORS[slug]
+                          return (
+                            <div key={slug} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: `1px solid ${T.border}` }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: 150, flexShrink: 0 }}>
+                                <Flag slug={slug} size={20} />
+                                <span style={{ fontSize: 13, fontWeight: 600, color: T.text, fontFamily: '-apple-system,sans-serif' }}>{COUNTRY_NAMES[slug]}</span>
+                              </div>
+                              <div style={{ flex: 1, height: 8, background: T.border, borderRadius: 4, overflow: 'hidden' }}>
+                                <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 4, transition: 'width 0.5s ease' }} />
+                              </div>
+                              <span style={{ fontSize: 14, fontWeight: 700, color, width: 54, textAlign: 'right', fontFamily: '-apple-system,sans-serif' }}>{val.toFixed(2)}%</span>
+                              <span style={{ fontSize: 11, color: T.sub, fontFamily: 'monospace', width: 36 }}>{year}</span>
+                            </div>
+                          )
+                        })}
+                    </div>
+                    <div style={{ marginTop: 20, padding: '14px 16px', background: '#f8fafc', borderRadius: 10, border: `1px solid ${T.border}` }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: T.sub, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>Ориентиры по Далио</div>
+                      <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+                        {[
+                          { color: '#059669', label: 'Подъём: >2.5% и растёт' },
+                          { color: '#d97706', label: 'Средний: 1–2.5%' },
+                          { color: '#dc2626', label: 'Отставание: <1%, стагнация' },
+                        ].map(({ color, label }) => (
+                          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <div style={{ width: 10, height: 10, borderRadius: '50%', background: color }} />
+                            <span style={{ fontSize: 12, color: T.text, fontFamily: '-apple-system,sans-serif' }}>{label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </Card>
+
+                  <AnalyticsBlock section="rd" />
                 </div>
               )}
             </>
