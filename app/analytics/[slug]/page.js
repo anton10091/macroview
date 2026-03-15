@@ -215,7 +215,7 @@ export default function AnalyticsArticlePage() {
         if (!error && data) { setArticle(data); setViews(data.views || 0) }
         setLoading(false)
       })
-    supabase.rpc('increment_article_views', { article_slug: slug }).catch(() => {})
+    supabase.rpc('increment_article_views', { article_slug: slug }).then(() => {}).catch?.(() => {})
     supabase.auth.getSession().then(({ data }) => {
       if (data?.session?.user) {
         setUser(data.session.user)
