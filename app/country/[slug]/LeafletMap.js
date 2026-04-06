@@ -59,6 +59,21 @@ export default function LeafletMap({ period }) {
       maxZoom: 8,
     }).addTo(map)
 
+    // Legend
+    const legend = L.control({ position: 'bottomleft' })
+    legend.onAdd = () => {
+      const div = L.DomUtil.create('div')
+      div.style.cssText = 'background:white;padding:10px 14px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.18);font-family:-apple-system,sans-serif;font-size:12px;line-height:1.8;min-width:190px'
+      div.innerHTML = `
+        <div style="font-weight:700;margin-bottom:6px;color:#1a1612;font-size:11px;text-transform:uppercase;letter-spacing:.05em">Обозначения</div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:28px;height:3px;background:#e8a060;border:1.5px solid #a05818;border-radius:2px"></span><span style="color:#444">Территория Сиама</span></div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:28px;height:0;border-top:2.5px dashed #1133cc"></span><span style="color:#444">Современный Таиланд</span></div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:28px;height:3px;background:rgba(238,68,34,0.25);border:1.5px dashed #cc3311;border-radius:2px"></span><span style="color:#444">Утраченные земли</span></div>
+      `
+      return div
+    }
+    legend.addTo(map)
+
     // Modern Thailand — permanent dashed reference
     L.geoJSON(geo(COORDS_TH), {
       style: { color:'#1133cc', weight:3, dashArray:'8 5', fillOpacity:0, opacity:0.9 }
