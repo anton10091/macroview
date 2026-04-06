@@ -168,12 +168,15 @@ function HistoricalMapSection() {
       const map = L.map(mapRef.current, {
         zoomControl: true,
         attributionControl: true,
+        center: [13.5, 101.5],
+        zoom: 5,
+        minZoom: 4,
+        maxZoom: 10,
       })
 
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '© CartoDB © OpenStreetMap',
-        maxZoom: 12,
-        subdomains: 'abcd',
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 10,
       }).addTo(map)
 
       leafletRef.current = map
@@ -232,16 +235,15 @@ function HistoricalMapSection() {
     }).addTo(map)
     siamLayerRef.current.bindTooltip(`Сиам ${period.year} · ${period.km} км²`, { sticky: true })
 
-    // Fit bounds
-    const [[s,w],[n,e]] = period.bounds
-    map.fitBounds([[s,w],[n,e]], { padding: [20,20] })
+    // Gentle pan to center of period, keep zoom fixed
+    map.setView([13.5, 101.5], 5, { animate: true, duration: 0.5 })
   }
 
   return (
     <div>
       {/* Map */}
       <div style={{ borderRadius:12, overflow:'hidden', border:'1px solid #e8e2d8', marginBottom:0 }}>
-        <div ref={mapRef} style={{ height:520, width:'100%', background:'#d4e8f0' }} />
+        <div ref={mapRef} style={{ height:360, width:'100%', background:'#d4e8f0' }} />
       </div>
 
       {/* Period controls */}
@@ -428,13 +430,15 @@ export default function CountryPage() {
       {/* ─── ИСТОРИЧЕСКАЯ КАРТА — ВВЕРХУ ─── */}
       {country.slug === 'thailand' && (
         <div style={{ background: '#faf8f4', borderBottom: '1px solid #e8e2d8' }}>
-          <div style={{ maxWidth: 1024, margin: '0 auto', padding: '24px 24px 0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-              <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 700, color: '#1a1612', margin: 0 }}>🗺 История 1700–2026</h2>
+          <div style={{ maxWidth: 1024, margin: '0 auto', padding: '16px 24px 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 18, fontWeight: 700, color: '#1a1612', margin: 0 }}>🗺 История 1700–2026</h2>
               <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#9a948e' }}>Территориальные изменения · причинно-следственные связи · инвест-выводы</span>
             </div>
           </div>
-          <HistoricalMapSection />
+          <div style={{ maxWidth: 1024, margin: '0 auto' }}>
+            <HistoricalMapSection />
+          </div>
         </div>
       )}
 
