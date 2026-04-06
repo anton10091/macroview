@@ -170,9 +170,10 @@ function HistoricalMapSection() {
         attributionControl: true,
       })
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap',
-        maxZoom: 10,
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '© CartoDB © OpenStreetMap',
+        maxZoom: 12,
+        subdomains: 'abcd',
       }).addTo(map)
 
       leafletRef.current = map
@@ -194,10 +195,22 @@ function HistoricalMapSection() {
     renderPeriod(p)
   }, [idx])
 
+  const modernTHRef = useRef(null)
+
+  const MODERN_TH_GEOJSON = { type:'Feature', properties:{}, geometry:{ type:'Polygon', coordinates:[[[102.1,5.6],[100.1,5.6],[99.6,6.4],[99.2,5.8],[99.5,5.2],[100,4.8],[100.3,5],[100.1,5.6],[99,6.4],[98.5,6.5],[98,7.8],[98.5,9.5],[98.7,10.5],[98.6,11.5],[97.5,12.5],[97.8,15],[98.8,16.5],[99.5,18.2],[100.5,19.5],[101.2,19.5],[102.1,20.2],[101.7,21],[102,22],[103,22],[104,21.8],[104.6,21.8],[103,22],[101.7,22.5],[101.2,21.8],[100.1,21.5],[99,21.8],[98.1,22.5],[97.8,24],[98.5,25.5],[98.7,27.5],[97.5,28.5],[96,28.3],[94,28],[92.2,27.8],[102.1,5.6]]] }}
+
   const renderPeriod = (period) => {
     const map = leafletRef.current
     if (!map || !window.L) return
     const L = window.L
+
+    // Add modern Thailand outline once
+    if (!modernTHRef.current) {
+      modernTHRef.current = L.geoJSON(MODERN_TH_GEOJSON, {
+        style: { color:'#4455cc', fillColor:'transparent', weight:1.5, dashArray:'6 4', opacity:0.7 }
+      }).addTo(map)
+      modernTHRef.current.bindTooltip('Современный Таиланд (для сравнения)', { sticky:false })
+    }
 
     // Remove old layers
     if (siamLayerRef.current) { map.removeLayer(siamLayerRef.current); siamLayerRef.current = null }
@@ -228,7 +241,7 @@ function HistoricalMapSection() {
     <div>
       {/* Map */}
       <div style={{ borderRadius:12, overflow:'hidden', border:'1px solid #e8e2d8', marginBottom:0 }}>
-        <div ref={mapRef} style={{ height:480, width:'100%', background:'#a8cce0' }} />
+        <div ref={mapRef} style={{ height:520, width:'100%', background:'#d4e8f0' }} />
       </div>
 
       {/* Period controls */}
@@ -412,6 +425,19 @@ export default function CountryPage() {
         </div>
       </div>
 
+      {/* ─── ИСТОРИЧЕСКАЯ КАРТА — ВВЕРХУ ─── */}
+      {country.slug === 'thailand' && (
+        <div style={{ background: '#faf8f4', borderBottom: '1px solid #e8e2d8' }}>
+          <div style={{ maxWidth: 1024, margin: '0 auto', padding: '24px 24px 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 700, color: '#1a1612', margin: 0 }}>🗺 История 1700–2026</h2>
+              <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#9a948e' }}>Территориальные изменения · причинно-следственные связи · инвест-выводы</span>
+            </div>
+          </div>
+          <HistoricalMapSection />
+        </div>
+      )}
+
       {/* Контент */}
       <div style={{ maxWidth: 1024, margin: '0 auto', padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: 40 }}>
 
@@ -554,20 +580,6 @@ export default function CountryPage() {
           </div>
         </section>
 
-        {/* ─── ИСТОРИЧЕСКАЯ КАРТА ─── */}
-        <section id="history">
-          <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 700, color: '#1a1612', marginBottom: 8 }}>🗺 История 1700–2026</h2>
-          <p style={{ fontFamily: 'monospace', fontSize: 12, color: '#9a948e', marginBottom: 16 }}>
-            Территориальные изменения · причинно-следственные связи · инвест-выводы
-          </p>
-          {country.slug === 'thailand' ? (
-            <HistoricalMapSection />
-          ) : (
-            <div style={{ background: '#fff', border: '1px solid #e8e2d8', borderRadius: 12, padding: 32, textAlign: 'center' }}>
-              <p style={{ fontFamily: 'monospace', fontSize: 13, color: '#9a948e' }}>Исторические данные для {country.name} в разработке</p>
-            </div>
-          )}
-        </section>
         {/* ─── МАКРОДАННЫЕ ─── */}
         <section id="macro">
           <h2 style={{ fontFamily: 'Georgia, serif', fontSize: 20, fontWeight: 700, color: '#1a1612', marginBottom: 16 }}>📊 Макроданные</h2>
