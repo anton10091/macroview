@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { notFound } from 'next/navigation'
 import { getCountry } from '../../../lib/mock'
 import { Navbar } from '../../../components/layout/Navbar'
 import { SignalBadge } from '../../../components/ui/SignalBadge'
@@ -320,14 +319,20 @@ function HistoricalMap({ period }) {
 // ─── Page ──────────────────────────────────────────────────────────────────
 export default function CountryHistoryPage() {
   const params = useParams()
-  const country = getCountry(params.slug)
-  if (!country) return notFound()
-
-  // Only Thailand has historical map data for now
-  const isThailand = params.slug === 'thailand'
-
   const [idx, setIdx] = useState(0)
   const d3Ready = useD3Ready()
+
+  const country = getCountry(params.slug)
+
+  if (!country) {
+    return (
+      <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <span style={{fontFamily:'monospace',fontSize:14,color:T.muted}}>Страна не найдена</span>
+      </div>
+    )
+  }
+
+  const isThailand = params.slug === 'thailand'
   const p = PERIODS[idx]
   const sig = SIG[p.dir]
   const dc = p.dir==='l' ? T.loss : p.dir==='g' ? T.gain : T.neut
