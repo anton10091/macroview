@@ -61,7 +61,7 @@ export default function LeafletMap({ period }) {
 
     // Modern Thailand — permanent dashed reference
     L.geoJSON(geo(COORDS_TH), {
-      style: { color:'#2244bb', weight:2.5, dashArray:'8 5', fillOpacity:0, opacity:0.65 }
+      style: { color:'#1133cc', weight:3, dashArray:'8 5', fillOpacity:0, opacity:0.9 }
     }).bindTooltip('Современный Таиланд (для сравнения)', { sticky:true }).addTo(map)
 
     mapRef.current = map
@@ -86,7 +86,7 @@ export default function LeafletMap({ period }) {
     })
 
     siamRef.current = L.geoJSON(geo(HIST_SIAM[p.year] || COORDS_TH), {
-      style:{ color:'#a05818', weight:2.5, fillColor:'#e8a060', fillOpacity:0.6 }
+      style:{ color:'#a05818', weight:2, fillColor:'#e8a060', fillOpacity:0.35 }
     }).bindTooltip(`Сиам ${p.year} · ${p.km}`, { sticky:true }).addTo(map)
   }
 
