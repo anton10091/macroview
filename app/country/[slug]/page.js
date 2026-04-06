@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -124,130 +124,227 @@ const HIST_SIG = {
   n:{ color:'#b08c3a', bg:'#f5edda', border:'#e8d898', label:'Нейтрально' },
 }
 
-// ─── Leaflet Map (loaded client-side) ─────────────────────────────────────
+// ─── SVG Map — pure React, no dependencies ────────────────────────────────
+
+// Mercator projection: lon/lat → SVG x/y
+// Viewport 700×500, centered on SEA (Thailand focus)
+function proj(lon, lat) {
+  const W = 700, H = 500
+  const cx = 101.0, cy = 14.0, sc = 4800
+  const R = Math.PI / 180
+  const x = (lon - cx) * R * sc + W / 2
+  const yM  = Math.log(Math.tan(Math.PI/4 + lat * R / 2))
+  const yM0 = Math.log(Math.tan(Math.PI/4 + cy  * R / 2))
+  return [+(x).toFixed(1), +(-(yM - yM0) * sc + H / 2).toFixed(1)]
+}
+
+function ring2d(coords) {
+  return coords.map(([lo,la],i) => { const [x,y]=proj(lo,la); return `${i?'L':'M'}${x},${y}` }).join(' ') + ' Z'
+}
+
+// ── Country outlines (Natural Earth simplified) ──
+const SEA_COUNTRIES = [
+  { id:'mm', name:'Мьянма',   fill:'#c8d9b8', coords:[[92.2,27.8],[94,28],[96,28.3],[97.5,28.5],[98.7,27.5],[98.5,25.5],[97.8,24],[98.1,22.5],[99,21.8],[100.1,21.5],[101.2,21.8],[101.7,22.5],[101.1,23],[102,23.8],[103,22.3],[101.7,21],[101.2,20.2],[100.5,19.5],[99.5,18.2],[98.8,16.5],[97.8,15],[97.5,12.5],[98.6,11.5],[98.7,10.5],[99,10],[98.5,9.5],[98,7.8],[98.5,6.5],[99,6.4],[100.1,5.6],[100.3,5],[100,4.8],[99.5,5.2],[99.2,5.8],[98.7,7],[97.8,8],[97.5,9.5],[97,10.5],[96.5,12],[96,14],[95.5,16],[95,18.5],[94.5,20],[93.5,22],[92.8,24],[92.2,27.8]] },
+  { id:'la', name:'Лаос',     fill:'#c8d9b8', coords:[[102.1,22.4],[103.2,22.8],[104.1,22.4],[104.6,21.8],[104.9,20.5],[105.5,19.5],[106,18.8],[106.1,17.5],[105.8,16.5],[105.5,15.5],[105.6,14.5],[105.1,14],[104.8,13.5],[104.5,13],[103.9,12.5],[103.4,12.5],[103,12.8],[103,13.5],[103.4,14],[102.9,14.5],[102.3,15.5],[101.8,16.5],[101,17.5],[100.5,18],[100,19],[100.3,20.3],[100.7,19.5],[101.2,19.5],[101.8,19.5],[102.2,20.4],[102.9,21],[104,21.2],[104.6,21.8],[102.1,22.4]] },
+  { id:'vn', name:'Вьетнам',  fill:'#c8d9b8', coords:[[103,22.8],[104.1,22.4],[104.7,23.2],[105.8,23.5],[106.8,22.8],[107.9,22.2],[108.5,21.5],[108.7,20.5],[108.2,19.5],[107.5,18],[107,17],[106.6,16],[106,14.5],[105.8,13],[106.5,11.5],[107,10.5],[108,10],[109,10.5],[109.5,12],[109,13.5],[108.5,15],[107.5,16],[106.8,17],[106.1,17.5],[105.5,19.5],[104.9,20.5],[104.6,21.8],[104.1,22.4],[103.2,22.8],[103,22.8]] },
+  { id:'kh', name:'Камбоджа', fill:'#c8d9b8', coords:[[102.3,15.5],[102.9,14.5],[103.4,14],[102.9,13.5],[103,12.8],[103.4,12.5],[103.9,12.5],[104.5,13],[104.8,13.5],[105.1,14],[105.6,14.5],[106,14],[106.5,13.5],[107,12.5],[107.5,11.5],[107,10.5],[106.5,11.5],[105,11],[103.5,10.5],[102.5,11],[102,12],[102.3,13],[102.1,14],[101.8,15],[102.3,15.5]] },
+  { id:'my', name:'Малайзия', fill:'#c8d9b8', coords:[[103,1.5],[103.5,2.5],[104,3.5],[104,4.5],[103.5,5.5],[103,6],[102,6.5],[101.5,6.8],[100.5,6.3],[100,6],[99.5,6.4],[99,6.4],[100.1,5.6],[100.3,5],[100,4.8],[100.5,4],[101,3.5],[102,2.5],[103,1.5]] },
+  { id:'cn', name:'Китай',    fill:'#c8d9b8', coords:[[105,23],[106,23.5],[107,23.5],[108,23],[109,22],[110,21.5],[108.5,21.5],[107.9,22.2],[106.8,22.8],[105.8,23.5],[104.7,23.2],[104.1,22.4],[103.2,22.8],[103,23],[104,23.5],[105,23]] },
+]
+
+// Country label positions
+const LABELS = [
+  { lon:95.5, lat:19.5, name:'Мьянма' },
+  { lon:103.5,lat:18.0, name:'Лаос' },
+  { lon:107.5,lat:15.5, name:'Вьетнам' },
+  { lon:104.5,lat:12.0, name:'Камбоджа' },
+  { lon:102.5,lat:3.8,  name:'Малайзия' },
+  { lon:107.5,lat:22.5, name:'Китай' },
+  { lon:93.5, lat:9.5,  name:'Бенгальский залив' },
+  { lon:103.5,lat:8.5,  name:'Сиамский залив' },
+]
+
+// Modern Thailand border (reference, always shown as dashed)
+const TH_MODERN_COORDS = [[102.1,5.6],[101.4,4.9],[100.1,5.6],[99.6,6.4],[99.2,5.8],[99,6.4],[98.5,6.5],[98,7.8],[98.5,9.5],[98.7,10.5],[98.6,11.5],[97.5,12.5],[97.8,15],[98.8,16.5],[99.5,18.2],[100.5,19.5],[101.2,19.5],[102.1,20.2],[101.7,21],[102,22],[103,22],[103.8,22.5],[104.6,21.8],[103,22],[101.7,22.5],[101.2,21.8],[100.1,21.5],[99,21.8],[98.1,22.5],[97.8,24],[98.5,25.5],[98.7,27.5],[97.5,28.5],[96,28.3],[94,28],[92.2,27.8],[102.1,5.6]]
+
+// Historical siam territories [lon,lat][]
+const SIAM = {
+  1700: [[97,7],[99.5,5.5],[101.5,5.5],[102,6.5],[102.5,8],[102.5,10.5],[103,13],[103.5,15],[104,17],[104.5,19],[104,21],[103,21.5],[102,21],[100.5,19.5],[99,18.5],[98,16],[97.5,14],[98,11],[98,8.5],[97,7]],
+  1767: [[99,12],[101,11.5],[102.5,12],[103,14],[103,17],[102.5,19],[101.5,20],[100,20],[99,18.5],[98.5,16.5],[98.5,14],[99,12]],
+  1782: [[99,7],[101,6],[102,7],[102.5,9],[103,12],[103.5,15],[104,17.5],[103.5,19.5],[102.5,21],[101,21],[99.5,19.5],[98.5,17.5],[98,14],[98.5,11],[99,8.5],[99,7]],
+  1855: [[99,5],[101,5],[102,6],[102.5,8.5],[103,11],[103.5,13.5],[104,16],[104.5,18.5],[104.5,20.5],[103.5,21.5],[102,21],[100.5,19.5],[99,18.5],[97.5,15.5],[97.5,13],[98,10.5],[98.5,8],[99,5]],
+  1893: [[99,5],[101,5],[102,6],[102.5,8.5],[103,11],[103,14],[103,17],[102.5,19],[101.5,20.5],[100,19.5],[98.5,17],[97.5,15],[97.5,13],[98,10.5],[98.5,8],[99,5]],
+  1909: TH_MODERN_COORDS,
+  1932: TH_MODERN_COORDS,
+  1997: TH_MODERN_COORDS,
+  2026: TH_MODERN_COORDS,
+}
+
+// Lost territory overlays
+const LOST = {
+  laos:  [[103,14],[104.5,14],[105,16],[105.5,20],[104.5,21.5],[103.5,21.5],[102.5,20.5],[103,17],[103,14]],
+  camb:  [[102.5,12],[103.5,11.5],[104.5,11.5],[105,13],[104.5,14],[103,14],[102.5,13],[102.5,12]],
+  malay: [[99.5,6.4],[101.4,6],[101.8,7],[101,8],[100.2,7.5],[99.5,6.4]],
+}
+
+const PERIOD_LOST = {
+  1700:[],
+  1767:[],
+  1782:[],
+  1855:[],
+  1893:[{ coords:LOST.laos, label:'Лаос → Франции 1893' }],
+  1909:[{ coords:LOST.laos, label:'Лаос' },{ coords:LOST.camb, label:'Камбоджа' },{ coords:LOST.malay, label:'Малайя' }],
+  1932:[{ coords:LOST.laos, label:'Лаос' },{ coords:LOST.camb, label:'Камбоджа' },{ coords:LOST.malay, label:'Малайя' }],
+  1997:[{ coords:LOST.laos, label:'Лаос' },{ coords:LOST.camb, label:'Камбоджа' },{ coords:LOST.malay, label:'Малайя' }],
+  2026:[{ coords:LOST.laos, label:'Лаос' },{ coords:LOST.camb, label:'Камбоджа' },{ coords:LOST.malay, label:'Малайя' }],
+}
+
+// City dots for current period
+const CITIES = {
+  1700: [{ lon:100.5, lat:14.35, name:'Аюттхая ★', main:true }],
+  1767: [{ lon:100.5, lat:13.8,  name:'Руины Аюттхаи', col:'#c8622a' },{ lon:100.5,lat:13.5,name:'Тхонбури' }],
+  1782: [{ lon:100.5, lat:13.75, name:'Бангкок', main:true }],
+  1855: [{ lon:100.5, lat:13.75, name:'Бангкок', main:true }],
+  1893: [{ lon:100.5, lat:13.75, name:'Бангкок', main:true },{ lon:100.5,lat:14.2,name:'Канонерки!', col:'#c8622a' }],
+  1909: [{ lon:100.5, lat:13.75, name:'Бангкок', main:true }],
+  1932: [{ lon:100.5, lat:13.75, name:'Бангкок', main:true }],
+  1997: [{ lon:100.5, lat:13.75, name:'Бангкок', main:true },{ lon:98.4,lat:7.9,name:'Пхукет −50%',col:'#c8622a' }],
+  2026: [{ lon:100.5, lat:13.75, name:'Бангкок', main:true },{ lon:98.4,lat:7.9,name:'Пхукет',col:'#2a7a4a' },{ lon:100.9,lat:12.9,name:'Паттайя',col:'#2a7a4a' }],
+}
+
+function SiamMap({ period }) {
+  const W = 700, H = 500
+  const siamCoords = SIAM[period.year] || TH_MODERN_COORDS
+  const lostList = PERIOD_LOST[period.year] || []
+  const cities = CITIES[period.year] || []
+  const dc = period.dir === 'l' ? '#c8622a' : period.dir === 'g' ? '#2a7a4a' : '#b08c3a'
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width:'100%', display:'block', borderRadius:'12px 12px 0 0' }}>
+      {/* Ocean */}
+      <rect width={W} height={H} fill="#b8d8ea" />
+
+      {/* Gradient overlay for depth */}
+      <defs>
+        <linearGradient id="oceanG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#9ecce0" />
+          <stop offset="100%" stopColor="#c8e4f0" />
+        </linearGradient>
+      </defs>
+      <rect width={W} height={H} fill="url(#oceanG)" />
+
+      {/* Neighbour countries */}
+      {SEA_COUNTRIES.map(c => (
+        <path key={c.id} d={ring2d(c.coords)} fill={c.fill} stroke="#a8c498" strokeWidth={0.8} />
+      ))}
+
+      {/* Country name labels */}
+      {LABELS.map(l => {
+        const [x,y] = proj(l.lon, l.lat)
+        const isWater = l.name.includes('залив') || l.name.includes('море')
+        return (
+          <text key={l.name} x={x} y={y}
+            textAnchor="middle" dominantBaseline="middle"
+            fontSize={isWater ? 9 : 11}
+            fontStyle={isWater ? 'italic' : 'normal'}
+            fontFamily="Georgia, serif"
+            fill={isWater ? '#5a8aaa' : '#3a5a2a'}
+            opacity={isWater ? 0.75 : 0.85}
+            style={{ pointerEvents:'none', userSelect:'none' }}
+          >{l.name}</text>
+        )
+      })}
+
+      {/* Modern Thailand border — always shown as thin dashed blue */}
+      <path
+        d={ring2d(TH_MODERN_COORDS)}
+        fill="none"
+        stroke="#4455bb"
+        strokeWidth={1.2}
+        strokeDasharray="5 3"
+        opacity={0.55}
+      />
+
+      {/* Lost territories */}
+      {lostList.map((lt, i) => (
+        <path key={i} d={ring2d(lt.coords)}
+          fill="#dd3311" fillOpacity={0.28}
+          stroke="#cc2200" strokeWidth={1.2}
+          strokeDasharray="5 3" strokeOpacity={0.65}
+        />
+      ))}
+
+      {/* Siam territory */}
+      <path
+        d={ring2d(siamCoords)}
+        fill="#e8a060"
+        fillOpacity={0.78}
+        stroke="#b06820"
+        strokeWidth={2.5}
+        strokeLinejoin="round"
+      />
+
+      {/* Cities & events */}
+      {cities.map((c, i) => {
+        const [x,y] = proj(c.lon, c.lat)
+        const col = c.col || (c.main ? '#1a3a6a' : '#2a7a4a')
+        const r = c.main ? 6 : 4
+        return (
+          <g key={i}>
+            <circle cx={x} cy={y} r={r+2} fill="white" opacity={0.6} />
+            <circle cx={x} cy={y} r={r} fill={col} stroke="white" strokeWidth={1.5} />
+            {c.main && <text x={x} y={y+2.5} textAnchor="middle" dominantBaseline="middle" fill="white" fontSize={7} fontWeight="bold">★</text>}
+            <text x={x + r + 5} y={y + 1}
+              dominantBaseline="middle"
+              fontSize={10} fontFamily="-apple-system,sans-serif"
+              fill="#1a1612"
+              stroke="white" strokeWidth={3} paintOrder="stroke"
+              style={{ pointerEvents:'none', userSelect:'none' }}
+            >{c.name}</text>
+          </g>
+        )
+      })}
+
+      {/* Legend */}
+      <rect x={W-170} y={10} width={158} height={82} rx={8} fill="white" fillOpacity={0.9} />
+      <rect x={W-160} y={21} width={11} height={8} rx={2} fill="#e8a060" fillOpacity={0.78} stroke="#b06820" strokeWidth={0.8} />
+      <text x={W-144} y={29} fontSize={10} fontFamily="-apple-system,sans-serif" fill="#333" dominantBaseline="middle">Территория Сиама</text>
+      <line x1={W-160} y1={43} x2={W-149} y2={43} stroke="#4455bb" strokeWidth={1.2} strokeDasharray="4 2" />
+      <text x={W-144} y={43} fontSize={10} fontFamily="-apple-system,sans-serif" fill="#333" dominantBaseline="middle">Совр. граница</text>
+      <rect x={W-160} y={52} width={11} height={8} rx={2} fill="#dd3311" fillOpacity={0.28} stroke="#cc2200" strokeWidth={0.8} />
+      <text x={W-144} y={56} fontSize={10} fontFamily="-apple-system,sans-serif" fill="#333" dominantBaseline="middle">Утраченные земли</text>
+      <circle cx={W-154} cy={72} r={5} fill="#1a3a6a" stroke="white" strokeWidth={1.2} />
+      <text x={W-144} y={72} fontSize={10} fontFamily="-apple-system,sans-serif" fill="#333" dominantBaseline="middle">Столица / событие</text>
+
+      {/* Era stamp */}
+      <rect x={10} y={10} width={170} height={42} rx={8} fill="white" fillOpacity={0.92} />
+      <text x={20} y={26} fontSize={13} fontWeight="600" fontFamily="Georgia,serif" fill="#1a1612">{period.year} — {period.label}</text>
+      <text x={20} y={42} fontSize={10} fontFamily="monospace" fill="#6a6460">{period.km} км² · {period.pct}% от пика</text>
+
+      {/* Change badge */}
+      {period.chg && (
+        <>
+          <rect x={188} y={10} width={70} height={24} rx={6} fill={dc} fillOpacity={0.15} stroke={dc} strokeWidth={1} strokeOpacity={0.4} />
+          <text x={223} y={22} textAnchor="middle" fontSize={11} fontWeight="600" fontFamily="monospace" fill={dc} dominantBaseline="middle">{period.chg}</text>
+        </>
+      )}
+    </svg>
+  )
+}
+
 function HistoricalMapSection() {
   const [idx, setIdx] = useState(0)
-  const mapRef = useRef(null)
-  const leafletRef = useRef(null)
-  const siamLayerRef = useRef(null)
-  const lostLayersRef = useRef([])
-
   const p = HIST_PERIODS[idx]
   const sig = HIST_SIG[p.dir]
   const dc = p.dir==='l' ? '#c8622a' : p.dir==='g' ? '#2a7a4a' : '#b08c3a'
   const invSig = HIST_SIG[p.invS]
 
-  // Init Leaflet once
-  useEffect(() => {
-    if (leafletRef.current) return
-
-    const loadLeaflet = () => {
-      if (!document.getElementById('leaflet-css')) {
-        const link = document.createElement('link')
-        link.id = 'leaflet-css'
-        link.rel = 'stylesheet'
-        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
-        document.head.appendChild(link)
-      }
-
-      if (window.L) {
-        initMap()
-        return
-      }
-
-      const script = document.createElement('script')
-      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
-      script.onload = initMap
-      document.head.appendChild(script)
-    }
-
-    const initMap = () => {
-      if (!mapRef.current || leafletRef.current) return
-      const L = window.L
-
-      const map = L.map(mapRef.current, {
-        zoomControl: true,
-        attributionControl: true,
-        center: [13.5, 101.5],
-        zoom: 5,
-        minZoom: 4,
-        maxZoom: 10,
-      })
-
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 10,
-      }).addTo(map)
-
-      leafletRef.current = map
-      renderPeriod(HIST_PERIODS[0])
-    }
-
-    loadLeaflet()
-
-    return () => {
-      if (leafletRef.current) {
-        leafletRef.current.remove()
-        leafletRef.current = null
-      }
-    }
-  }, [])
-
-  // Re-render on period change
-  useEffect(() => {
-    renderPeriod(p)
-  }, [idx])
-
-  const modernTHRef = useRef(null)
-
-  const MODERN_TH_GEOJSON = { type:'Feature', properties:{}, geometry:{ type:'Polygon', coordinates:[[[102.1,5.6],[100.1,5.6],[99.6,6.4],[99.2,5.8],[99.5,5.2],[100,4.8],[100.3,5],[100.1,5.6],[99,6.4],[98.5,6.5],[98,7.8],[98.5,9.5],[98.7,10.5],[98.6,11.5],[97.5,12.5],[97.8,15],[98.8,16.5],[99.5,18.2],[100.5,19.5],[101.2,19.5],[102.1,20.2],[101.7,21],[102,22],[103,22],[104,21.8],[104.6,21.8],[103,22],[101.7,22.5],[101.2,21.8],[100.1,21.5],[99,21.8],[98.1,22.5],[97.8,24],[98.5,25.5],[98.7,27.5],[97.5,28.5],[96,28.3],[94,28],[92.2,27.8],[102.1,5.6]]] }}
-
-  const renderPeriod = (period) => {
-    const map = leafletRef.current
-    if (!map || !window.L) return
-    const L = window.L
-
-    // Add modern Thailand outline once
-    if (!modernTHRef.current) {
-      modernTHRef.current = L.geoJSON(MODERN_TH_GEOJSON, {
-        style: { color:'#4455cc', fillColor:'transparent', weight:1.5, dashArray:'6 4', opacity:0.7 }
-      }).addTo(map)
-      modernTHRef.current.bindTooltip('Современный Таиланд (для сравнения)', { sticky:false })
-    }
-
-    // Remove old layers
-    if (siamLayerRef.current) { map.removeLayer(siamLayerRef.current); siamLayerRef.current = null }
-    lostLayersRef.current.forEach(l => map.removeLayer(l))
-    lostLayersRef.current = []
-
-    // Add lost territories (red dashed)
-    period.lost.forEach(geojson => {
-      const layer = L.geoJSON(geojson, {
-        style: { color:'#cc3311', fillColor:'#dd4422', fillOpacity:0.35, weight:1.5, dashArray:'6 4' }
-      }).addTo(map)
-      layer.bindTooltip(geojson.properties.name, { sticky: true, className: 'hist-tooltip' })
-      lostLayersRef.current.push(layer)
-    })
-
-    // Add Siam territory (orange)
-    siamLayerRef.current = L.geoJSON(period.geojson, {
-      style: { color:'#b8702a', fillColor:'#e8a060', fillOpacity:0.6, weight:2.5 }
-    }).addTo(map)
-    siamLayerRef.current.bindTooltip(`Сиам ${period.year} · ${period.km} км²`, { sticky: true })
-
-    // Gentle pan to center of period, keep zoom fixed
-    map.setView([13.5, 101.5], 5, { animate: true, duration: 0.5 })
-  }
-
   return (
-    <div>
-      {/* Map */}
-      <div style={{ borderRadius:12, overflow:'hidden', border:'1px solid #e8e2d8', marginBottom:0 }}>
-        <div ref={mapRef} style={{ height:360, width:'100%', background:'#d4e8f0' }} />
-      </div>
+    <div style={{ borderRadius:12, overflow:'hidden', border:'1px solid #e8e2d8' }}>
+      <SiamMap period={p} />
 
       {/* Period controls */}
-      <div style={{ background:'#1a1612', padding:'12px 16px', borderRadius:'0 0 0 0' }}>
+      <div style={{ background:'#1a1612', padding:'12px 16px' }}>
         <div style={{ display:'flex', flexWrap:'wrap', gap:5, marginBottom:10 }}>
           {HIST_PERIODS.map((pp, i) => (
             <button key={pp.year} onClick={() => setIdx(i)} style={{
@@ -275,76 +372,46 @@ function HistoricalMapSection() {
       </div>
 
       {/* Dashboard */}
-      <div style={{ border:'1px solid #e8e2d8', borderTop:'none', borderRadius:'0 0 12px 12px', background:'#fff', padding:'20px 20px 20px' }}>
-
-        {/* Header */}
-        <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12, marginBottom:16, paddingBottom:14, borderBottom:'1px solid #e8e2d8' }}>
+      <div style={{ background:'#fff', padding:'18px 20px', borderTop:'none' }}>
+        <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12, marginBottom:14, paddingBottom:12, borderBottom:'1px solid #e8e2d8' }}>
           <div>
-            <div style={{ fontFamily:'monospace', fontSize:10, color:'#9a948e', marginBottom:4 }}>{p.period} · {p.dynasty || ''}</div>
-            <h3 style={{ fontFamily:'Georgia,serif', fontSize:18, fontWeight:900, color:'#1a1612', margin:0 }}>{p.year} — {p.label}</h3>
+            <div style={{ fontFamily:'monospace', fontSize:10, color:'#9a948e', marginBottom:4 }}>{p.period}</div>
+            <h3 style={{ fontFamily:'Georgia,serif', fontSize:17, fontWeight:900, color:'#1a1612', margin:0 }}>{p.year} — {p.label}</h3>
           </div>
           <span style={{ fontSize:11, fontFamily:'monospace', fontWeight:700, padding:'4px 12px', borderRadius:6, background:sig.bg, color:sig.color, flexShrink:0 }}>{sig.label}</span>
         </div>
 
-        {/* Two columns */}
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
-
-          {/* Left: causal chain + invest */}
-          <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-
-            {/* Area bar */}
-            <div style={{ padding:'10px 14px', background:'#faf8f4', border:'1px solid #e8e2d8', borderRadius:8 }}>
-              <div style={{ display:'flex', justifyContent:'space-between', marginBottom:5 }}>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+            <div style={{ padding:'9px 12px', background:'#faf8f4', border:'1px solid #e8e2d8', borderRadius:8 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
                 <span style={{ fontFamily:'monospace', fontSize:10, color:'#9a948e' }}>Территория от пика Аюттхаи</span>
-                <span style={{ fontFamily:'monospace', fontSize:11, fontWeight:700, color:dc }}>{p.pct}% · {p.km} км²</span>
+                <span style={{ fontFamily:'monospace', fontSize:10, fontWeight:700, color:dc }}>{p.pct}% · {p.km} км²</span>
               </div>
-              <div style={{ background:'#e8e2d8', borderRadius:4, height:8, overflow:'hidden' }}>
-                <div style={{ height:'100%', width:`${p.pct}%`, background:dc, borderRadius:4, transition:'width .5s,background .3s' }} />
+              <div style={{ background:'#e8e2d8', borderRadius:3, height:7, overflow:'hidden' }}>
+                <div style={{ height:'100%', width:`${p.pct}%`, background:dc, borderRadius:3, transition:'width .5s,background .3s' }} />
               </div>
-              {p.chg && <div style={{ marginTop:4, fontFamily:'monospace', fontSize:10, fontWeight:700, color:dc, textAlign:'right' }}>{p.chg}</div>}
             </div>
-
-            {/* Causal chain */}
             {[
               { tag:'причина',    bg:'#f5edda', col:'#b08c3a', txt:p.cause },
               { tag:'территория', bg:'#f5e8df', col:'#c8622a', txt:p.terr },
               { tag:'→ 2026',     bg:'#eeedfe', col:'#534AB7', txt:p.fwd },
             ].map((r,i) => (
-              <div key={i} style={{ display:'flex', gap:8, padding:'9px 12px', background:'#faf8f4', border:'1px solid #e8e2d8', borderRadius:8 }}>
+              <div key={i} style={{ display:'flex', gap:8, padding:'8px 10px', background:'#faf8f4', border:'1px solid #e8e2d8', borderRadius:8 }}>
                 <span style={{ fontSize:10, fontFamily:'monospace', fontWeight:600, padding:'2px 7px', borderRadius:10, whiteSpace:'nowrap', flexShrink:0, marginTop:1, background:r.bg, color:r.col }}>{r.tag}</span>
-                <p style={{ fontSize:12, color:'#6a6460', lineHeight:1.6, margin:0 }}>{r.txt}</p>
+                <p style={{ fontSize:12, color:'#6a6460', lineHeight:1.55, margin:0 }}>{r.txt}</p>
               </div>
             ))}
           </div>
-
-          {/* Right: invest */}
-          <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-            <div style={{ padding:'14px 16px', borderRadius:10, background:invSig.bg, border:`1px solid ${invSig.border}`, flex:1 }}>
-              <p style={{ fontSize:12, fontWeight:700, color:invSig.color, marginBottom:8 }}>{p.invT}</p>
-              <p style={{ fontSize:13, color:'#6a6460', lineHeight:1.7, margin:0 }}>{p.inv}</p>
-            </div>
-
-            {/* Pattern summary */}
-            <div style={{ padding:'14px 16px', borderRadius:10, background:'#faf8f4', border:'1px solid #e8e2d8' }}>
-              <p style={{ fontSize:11, fontFamily:'monospace', color:'#9a948e', marginBottom:6 }}>Ключевые цифры</p>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-                <div>
-                  <div style={{ fontFamily:'Georgia,serif', fontSize:20, fontWeight:700, color:dc }}>{p.pct}%</div>
-                  <div style={{ fontFamily:'monospace', fontSize:10, color:'#9a948e' }}>от пика 1700</div>
-                </div>
-                <div>
-                  <div style={{ fontFamily:'Georgia,serif', fontSize:20, fontWeight:700, color:'#1a1612' }}>{p.km}</div>
-                  <div style={{ fontFamily:'monospace', fontSize:10, color:'#9a948e' }}>км²</div>
-                </div>
-              </div>
-            </div>
+          <div style={{ padding:'14px 16px', borderRadius:10, background:invSig.bg, border:`1px solid ${invSig.border}` }}>
+            <p style={{ fontSize:12, fontWeight:700, color:invSig.color, marginBottom:8 }}>{p.invT}</p>
+            <p style={{ fontSize:13, color:'#6a6460', lineHeight:1.65, margin:0 }}>{p.inv}</p>
           </div>
         </div>
       </div>
     </div>
   )
 }
-
 
 export default function CountryPage() {
   const params = useParams()
