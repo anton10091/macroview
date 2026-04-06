@@ -124,211 +124,125 @@ const HIST_SIG = {
   n:{ color:'#b08c3a', bg:'#f5edda', border:'#e8d898', label:'Нейтрально' },
 }
 
-// ─── SVG Map — pure React, no dependencies ────────────────────────────────
+// ─── Real Natural Earth coordinates (110m, SEA region) ─────────────────────
+const COORDS_TH = [[105.22,14.274],[104.28,14.416],[102.988,14.227],[102.347,13.394],[102.585,12.187],[101.688,12.646],[100.832,12.627],[100.979,13.412],[100.097,13.407],[100.018,12.307],[99.478,10.846],[99.154,9.963],[99.222,9.239],[99.874,9.208],[100.281,8.296],[100.461,7.429],[101.019,6.857],[101.624,6.74],[102.142,6.222],[101.814,5.811],[101.156,5.691],[101.076,6.205],[100.259,6.642],[100.086,6.464],[99.69,6.849],[99.521,7.343],[98.988,7.908],[98.502,8.382],[98.34,7.795],[98.15,8.35],[98.258,8.975],[98.553,9.933],[99.039,10.96],[99.586,11.892],[99.197,12.805],[99.212,13.269],[99.096,13.827],[98.43,14.623],[98.193,15.124],[98.538,15.308],[98.902,16.178],[98.495,16.838],[97.858,17.568],[97.376,18.446],[97.797,18.627],[98.254,19.709],[98.96,19.753],[99.543,20.186],[100.115,20.418],[100.547,20.11],[100.605,19.509],[101.282,19.463],[101.037,18.409],[101.058,17.512],[102.113,18.109],[102.412,17.933],[102.999,17.962],[103.2,18.309],[103.956,18.241],[104.716,17.429],[104.781,16.442],[105.587,15.57],[105.544,14.724],[105.22,14.274]]
+const COORDS_MM = [[100.115,20.418],[99.543,20.186],[98.96,19.753],[98.254,19.709],[97.797,18.627],[97.376,18.446],[97.858,17.568],[98.495,16.838],[98.902,16.178],[98.538,15.308],[98.193,15.124],[98.43,14.623],[99.096,13.827],[99.212,13.269],[99.197,12.805],[99.586,11.892],[99.039,10.96],[98.553,9.933],[98.456,10.676],[98.765,11.441],[98.427,12.033],[98.51,13.123],[98.103,13.641],[97.779,14.838],[97.599,16.1],[97.163,16.93],[96.504,16.427],[95.37,15.714],[94.809,15.804],[94.19,16.038],[94.535,17.277],[94.326,18.214],[93.542,19.367],[93.664,19.727],[93.077,19.856],[92.368,20.67],[92.303,21.476],[92.652,21.323],[92.674,22.041],[93.167,22.278],[93.059,22.703],[93.286,23.043],[93.326,24.079],[94.107,23.85],[94.553,24.675],[94.604,25.162],[95.154,26.002],[95.126,26.574],[96.418,27.264],[97.134,27.083],[97.052,27.699],[97.401,27.882],[97.329,28.261],[97.912,28.336],[98.247,27.747],[98.682,27.508],[98.711,26.743],[98.672,25.919],[97.725,25.084],[97.606,23.898],[98.661,24.064],[98.898,23.143],[99.532,22.948],[99.24,22.119],[99.982,21.743],[100.418,21.559],[101.148,21.85],[101.181,21.437],[100.328,20.787],[100.115,20.418]]
+const COORDS_LA = [[107.384,14.203],[106.498,14.57],[106.044,13.881],[105.22,14.274],[105.544,14.724],[105.587,15.57],[104.781,16.442],[104.716,17.429],[103.956,18.241],[103.2,18.309],[102.999,17.962],[102.412,17.933],[102.113,18.109],[101.058,17.512],[101.037,18.409],[101.282,19.463],[100.605,19.509],[100.547,20.11],[100.115,20.418],[100.328,20.787],[101.181,21.437],[101.271,21.202],[101.804,21.174],[101.652,22.319],[102.171,22.464],[102.754,21.675],[103.204,20.767],[104.435,20.758],[104.824,19.886],[104.183,19.624],[103.895,19.265],[105.094,18.668],[105.926,17.485],[106.556,16.605],[107.312,15.909],[107.564,15.201],[107.384,14.203]]
+const COORDS_VN = [[104.334,10.486],[105.198,10.889],[106.25,10.962],[105.81,11.568],[107.492,12.338],[107.614,13.536],[107.384,14.203],[107.564,15.201],[107.312,15.909],[106.556,16.605],[105.926,17.485],[105.094,18.668],[103.895,19.265],[104.183,19.624],[104.824,19.886],[104.435,20.758],[103.204,20.767],[102.754,21.675],[102.171,22.464],[102.707,22.71],[103.503,22.705],[104.478,22.82],[105.328,23.353],[105.81,22.977],[106.725,22.794],[106.566,22.219],[107.042,21.813],[108.05,21.552],[106.714,20.697],[105.882,19.753],[105.663,19.059],[106.426,18.004],[107.362,16.698],[108.269,16.08],[108.878,15.276],[109.335,13.426],[109.202,11.667],[108.366,11.009],[107.222,10.364],[106.404,9.531],[105.159,8.6],[104.795,9.24],[105.076,9.919],[104.334,10.486]]
+const COORDS_KH = [[102.585,12.187],[102.347,13.394],[102.988,14.227],[104.28,14.416],[105.22,14.274],[106.044,13.881],[106.498,14.57],[107.384,14.203],[107.614,13.536],[107.492,12.338],[105.81,11.568],[106.25,10.962],[105.198,10.889],[104.334,10.486],[103.496,10.633],[103.092,11.153],[102.585,12.187]]
+const COORDS_MY = [[100.086,6.464],[100.259,6.642],[101.076,6.205],[101.156,5.691],[101.814,5.811],[102.142,6.222],[102.372,6.128],[102.963,5.525],[103.38,4.855],[103.438,4.181],[103.334,3.726],[103.431,3.382],[103.503,2.792],[103.856,2.516],[104.248,1.631],[104.23,1.294],[103.521,1.226],[102.574,1.967],[101.39,2.761],[101.274,3.271],[100.695,3.939],[100.558,4.767],[100.198,5.312],[100.306,6.041],[100.086,6.464]]
 
-// Mercator projection: lon/lat → SVG x/y
-// Viewport 700×500, centered on SEA (Thailand focus)
-function proj(lon, lat) {
-  const W = 700, H = 500
-  const cx = 101.0, cy = 14.0, sc = 4800
-  const R = Math.PI / 180
-  const x = (lon - cx) * R * sc + W / 2
-  const yM  = Math.log(Math.tan(Math.PI/4 + lat * R / 2))
-  const yM0 = Math.log(Math.tan(Math.PI/4 + cy  * R / 2))
-  return [+(x).toFixed(1), +(-(yM - yM0) * sc + H / 2).toFixed(1)]
+// Mercator projection: viewport 760x500, centered on Thailand
+const _W=760,_H=500,_CX=101.5,_CY=14.5,_SC=5200
+function px(lo,la){
+  const R=Math.PI/180
+  const x=(lo-_CX)*R*_SC+_W/2
+  const y=-(Math.log(Math.tan(Math.PI/4+la*R/2))-Math.log(Math.tan(Math.PI/4+_CY*R/2)))*_SC+_H/2
+  return [+x.toFixed(1),+y.toFixed(1)]
 }
+function toD(coords){return coords.map(([lo,la],i)=>{const[x,y]=px(lo,la);return `${i?'L':'M'}${x},${y}`}).join('')+' Z'}
 
-function ring2d(coords) {
-  return coords.map(([lo,la],i) => { const [x,y]=proj(lo,la); return `${i?'L':'M'}${x},${y}` }).join(' ') + ' Z'
-}
-
-// ── Country outlines (Natural Earth simplified) ──
-const SEA_COUNTRIES = [
-  { id:'mm', name:'Мьянма',   fill:'#c8d9b8', coords:[[92.2,27.8],[94,28],[96,28.3],[97.5,28.5],[98.7,27.5],[98.5,25.5],[97.8,24],[98.1,22.5],[99,21.8],[100.1,21.5],[101.2,21.8],[101.7,22.5],[101.1,23],[102,23.8],[103,22.3],[101.7,21],[101.2,20.2],[100.5,19.5],[99.5,18.2],[98.8,16.5],[97.8,15],[97.5,12.5],[98.6,11.5],[98.7,10.5],[99,10],[98.5,9.5],[98,7.8],[98.5,6.5],[99,6.4],[100.1,5.6],[100.3,5],[100,4.8],[99.5,5.2],[99.2,5.8],[98.7,7],[97.8,8],[97.5,9.5],[97,10.5],[96.5,12],[96,14],[95.5,16],[95,18.5],[94.5,20],[93.5,22],[92.8,24],[92.2,27.8]] },
-  { id:'la', name:'Лаос',     fill:'#c8d9b8', coords:[[102.1,22.4],[103.2,22.8],[104.1,22.4],[104.6,21.8],[104.9,20.5],[105.5,19.5],[106,18.8],[106.1,17.5],[105.8,16.5],[105.5,15.5],[105.6,14.5],[105.1,14],[104.8,13.5],[104.5,13],[103.9,12.5],[103.4,12.5],[103,12.8],[103,13.5],[103.4,14],[102.9,14.5],[102.3,15.5],[101.8,16.5],[101,17.5],[100.5,18],[100,19],[100.3,20.3],[100.7,19.5],[101.2,19.5],[101.8,19.5],[102.2,20.4],[102.9,21],[104,21.2],[104.6,21.8],[102.1,22.4]] },
-  { id:'vn', name:'Вьетнам',  fill:'#c8d9b8', coords:[[103,22.8],[104.1,22.4],[104.7,23.2],[105.8,23.5],[106.8,22.8],[107.9,22.2],[108.5,21.5],[108.7,20.5],[108.2,19.5],[107.5,18],[107,17],[106.6,16],[106,14.5],[105.8,13],[106.5,11.5],[107,10.5],[108,10],[109,10.5],[109.5,12],[109,13.5],[108.5,15],[107.5,16],[106.8,17],[106.1,17.5],[105.5,19.5],[104.9,20.5],[104.6,21.8],[104.1,22.4],[103.2,22.8],[103,22.8]] },
-  { id:'kh', name:'Камбоджа', fill:'#c8d9b8', coords:[[102.3,15.5],[102.9,14.5],[103.4,14],[102.9,13.5],[103,12.8],[103.4,12.5],[103.9,12.5],[104.5,13],[104.8,13.5],[105.1,14],[105.6,14.5],[106,14],[106.5,13.5],[107,12.5],[107.5,11.5],[107,10.5],[106.5,11.5],[105,11],[103.5,10.5],[102.5,11],[102,12],[102.3,13],[102.1,14],[101.8,15],[102.3,15.5]] },
-  { id:'my', name:'Малайзия', fill:'#c8d9b8', coords:[[103,1.5],[103.5,2.5],[104,3.5],[104,4.5],[103.5,5.5],[103,6],[102,6.5],[101.5,6.8],[100.5,6.3],[100,6],[99.5,6.4],[99,6.4],[100.1,5.6],[100.3,5],[100,4.8],[100.5,4],[101,3.5],[102,2.5],[103,1.5]] },
-  { id:'cn', name:'Китай',    fill:'#c8d9b8', coords:[[105,23],[106,23.5],[107,23.5],[108,23],[109,22],[110,21.5],[108.5,21.5],[107.9,22.2],[106.8,22.8],[105.8,23.5],[104.7,23.2],[104.1,22.4],[103.2,22.8],[103,23],[104,23.5],[105,23]] },
+const NEIGHBOURS=[
+  {c:COORDS_MM,f:'#d0ddc8',s:'#a8c098',lo:95.5,la:20.5,name:'Мьянма'},
+  {c:COORDS_LA,f:'#d0ddc8',s:'#a8c098',lo:103.5,la:18.5,name:'Лаос'},
+  {c:COORDS_VN,f:'#d0ddc8',s:'#a8c098',lo:107.2,la:15.5,name:'Вьетнам'},
+  {c:COORDS_KH,f:'#d0ddc8',s:'#a8c098',lo:104.8,la:12.3,name:'Камбоджа'},
+  {c:COORDS_MY,f:'#d0ddc8',s:'#a8c098',lo:102.3,la:4.0,name:'Малайзия'},
 ]
 
-// Country label positions
-const LABELS = [
-  { lon:95.5, lat:19.5, name:'Мьянма' },
-  { lon:103.5,lat:18.0, name:'Лаос' },
-  { lon:107.5,lat:15.5, name:'Вьетнам' },
-  { lon:104.5,lat:12.0, name:'Камбоджа' },
-  { lon:102.5,lat:3.8,  name:'Малайзия' },
-  { lon:107.5,lat:22.5, name:'Китай' },
-  { lon:93.5, lat:9.5,  name:'Бенгальский залив' },
-  { lon:103.5,lat:8.5,  name:'Сиамский залив' },
-]
-
-// Modern Thailand border (reference, always shown as dashed)
-const TH_MODERN_COORDS = [[102.1,5.6],[101.4,4.9],[100.1,5.6],[99.6,6.4],[99.2,5.8],[99,6.4],[98.5,6.5],[98,7.8],[98.5,9.5],[98.7,10.5],[98.6,11.5],[97.5,12.5],[97.8,15],[98.8,16.5],[99.5,18.2],[100.5,19.5],[101.2,19.5],[102.1,20.2],[101.7,21],[102,22],[103,22],[103.8,22.5],[104.6,21.8],[103,22],[101.7,22.5],[101.2,21.8],[100.1,21.5],[99,21.8],[98.1,22.5],[97.8,24],[98.5,25.5],[98.7,27.5],[97.5,28.5],[96,28.3],[94,28],[92.2,27.8],[102.1,5.6]]
-
-// Historical siam territories [lon,lat][]
-const SIAM = {
-  1700: [[97,7],[99.5,5.5],[101.5,5.5],[102,6.5],[102.5,8],[102.5,10.5],[103,13],[103.5,15],[104,17],[104.5,19],[104,21],[103,21.5],[102,21],[100.5,19.5],[99,18.5],[98,16],[97.5,14],[98,11],[98,8.5],[97,7]],
-  1767: [[99,12],[101,11.5],[102.5,12],[103,14],[103,17],[102.5,19],[101.5,20],[100,20],[99,18.5],[98.5,16.5],[98.5,14],[99,12]],
-  1782: [[99,7],[101,6],[102,7],[102.5,9],[103,12],[103.5,15],[104,17.5],[103.5,19.5],[102.5,21],[101,21],[99.5,19.5],[98.5,17.5],[98,14],[98.5,11],[99,8.5],[99,7]],
-  1855: [[99,5],[101,5],[102,6],[102.5,8.5],[103,11],[103.5,13.5],[104,16],[104.5,18.5],[104.5,20.5],[103.5,21.5],[102,21],[100.5,19.5],[99,18.5],[97.5,15.5],[97.5,13],[98,10.5],[98.5,8],[99,5]],
-  1893: [[99,5],[101,5],[102,6],[102.5,8.5],[103,11],[103,14],[103,17],[102.5,19],[101.5,20.5],[100,19.5],[98.5,17],[97.5,15],[97.5,13],[98,10.5],[98.5,8],[99,5]],
-  1909: TH_MODERN_COORDS,
-  1932: TH_MODERN_COORDS,
-  1997: TH_MODERN_COORDS,
-  2026: TH_MODERN_COORDS,
+const HIST_SIAM={
+  1700:[[97,7],[99.5,5.5],[101.5,5.5],[102.1,6.2],[102.5,8],[102.5,10.5],[103,13],[103.9,15],[104.7,17.4],[104.8,19.9],[104.1,21.8],[103.2,21.9],[101.8,21.2],[100.5,20.4],[99.5,20.2],[98.9,19.7],[97.8,18.4],[97.4,16.8],[98.5,15.3],[98.9,16.2],[98.5,14.6],[99.1,13.3],[99.2,12.8],[99.6,11.9],[99,10.9],[98.6,9.9],[98.5,8.4],[97,7]],
+  1767:[[99.2,12.8],[99.6,11.9],[100.8,12.6],[101.7,12.6],[103,13],[103.5,14.7],[103.2,17.9],[102.4,17.9],[102.1,18.1],[101.1,17.5],[101,18.4],[101.3,19.5],[100.6,19.5],[100.1,20.4],[99.5,20.2],[98.9,19.7],[98.3,17.6],[97.9,17.6],[97.4,16.8],[98.5,15.3],[98.9,16.2],[98.5,14.6],[99.1,13.3],[99.2,12.8]],
+  1782:[[99.5,7],[101,6.5],[102.1,6.2],[102.5,8],[103,11],[103.9,15],[104.7,17.4],[103.9,18.2],[103.2,18.3],[102.4,17.9],[102.1,18.1],[101.1,17.5],[101,18.4],[101.3,19.5],[100.6,19.5],[100.1,20.4],[99.5,20.2],[98.9,19.7],[97.8,18.4],[97.4,16.8],[97.6,16.1],[97.8,15],[98.9,16.2],[98.5,14.6],[99.1,13.3],[99.6,11.9],[99,10.9],[98.6,9.9],[98.5,8.4],[99.5,7]],
+  1855:[[99,5],[101.1,5.7],[102.1,6.2],[102.5,8.5],[103,11],[103.9,14.2],[104.7,17.4],[104.8,19.9],[104.1,21.8],[103.2,21.9],[101.8,21.2],[100.5,20.4],[99.5,20.2],[98.9,19.7],[97.8,18.4],[97.4,16.8],[97.5,14.9],[97.8,15],[98.5,14.6],[99.1,13.3],[99.6,11.9],[99,10.9],[98.6,9.9],[98.5,8.4],[97,7],[99,5]],
+  1893:COORDS_TH,1909:COORDS_TH,1932:COORDS_TH,1997:COORDS_TH,2026:COORDS_TH,
 }
 
-// Lost territory overlays
-const LOST = {
-  laos:  [[103,14],[104.5,14],[105,16],[105.5,20],[104.5,21.5],[103.5,21.5],[102.5,20.5],[103,17],[103,14]],
-  camb:  [[102.5,12],[103.5,11.5],[104.5,11.5],[105,13],[104.5,14],[103,14],[102.5,13],[102.5,12]],
-  malay: [[99.5,6.4],[101.4,6],[101.8,7],[101,8],[100.2,7.5],[99.5,6.4]],
+const HIST_LOST={
+  1700:[],1767:[],1782:[],1855:[],
+  1893:[{c:COORDS_LA,name:'Лаос → Франции 1893'}],
+  1909:[{c:COORDS_LA,name:'Лаос'},{c:COORDS_KH,name:'Камбоджа'},{c:[[99.521,7.343],[99.69,6.849],[100.086,6.464],[100.259,6.642],[101.076,6.205],[101.156,5.691],[101.624,6.74],[101.019,6.857],[100.461,7.429],[99.874,9.208],[99.222,9.239],[99.154,9.963],[99.039,10.96],[98.553,9.933],[98.258,8.975],[98.15,8.35],[98.34,7.795],[98.502,8.382],[98.988,7.908],[99.521,7.343]],name:'Малайя → Британии'}],
+  1932:[{c:COORDS_LA,name:'Лаос'},{c:COORDS_KH,name:'Камбоджа'}],
+  1997:[{c:COORDS_LA,name:'Лаос'},{c:COORDS_KH,name:'Камбоджа'}],
+  2026:[{c:COORDS_LA,name:'Лаос'},{c:COORDS_KH,name:'Камбоджа'}],
 }
 
-const PERIOD_LOST = {
-  1700:[],
-  1767:[],
-  1782:[],
-  1855:[],
-  1893:[{ coords:LOST.laos, label:'Лаос → Франции 1893' }],
-  1909:[{ coords:LOST.laos, label:'Лаос' },{ coords:LOST.camb, label:'Камбоджа' },{ coords:LOST.malay, label:'Малайя' }],
-  1932:[{ coords:LOST.laos, label:'Лаос' },{ coords:LOST.camb, label:'Камбоджа' },{ coords:LOST.malay, label:'Малайя' }],
-  1997:[{ coords:LOST.laos, label:'Лаос' },{ coords:LOST.camb, label:'Камбоджа' },{ coords:LOST.malay, label:'Малайя' }],
-  2026:[{ coords:LOST.laos, label:'Лаос' },{ coords:LOST.camb, label:'Камбоджа' },{ coords:LOST.malay, label:'Малайя' }],
+const HIST_CITIES={
+  1700:[{lo:100.5,la:14.35,name:'Аюттхая',main:true},{lo:99,la:18.8,name:'Чиангмай'},{lo:100.5,la:6.0,name:'Малайские вассалы',col:'#2a7a4a'}],
+  1767:[{lo:100.5,la:13.75,name:'Руины Аюттхаи',col:'#c8622a',main:true},{lo:100.5,la:13.5,name:'Тхонбури'}],
+  1782:[{lo:100.5,la:13.75,name:'Бангкок',main:true},{lo:99,la:18.8,name:'Чиангмай возвращён',col:'#2a7a4a'}],
+  1855:[{lo:100.5,la:13.75,name:'Бангкок',main:true}],
+  1893:[{lo:100.5,la:13.75,name:'Бангкок',main:true},{lo:100.5,la:14.2,name:'Канонерки у дворца',col:'#c8622a'}],
+  1909:[{lo:100.5,la:13.75,name:'Бангкок',main:true}],
+  1932:[{lo:100.5,la:13.75,name:'Бангкок',main:true}],
+  1997:[{lo:100.5,la:13.75,name:'Бангкок',main:true},{lo:98.4,la:7.9,name:'Пхукет −50%',col:'#c8622a'}],
+  2026:[{lo:100.5,la:13.75,name:'Бангкок',main:true},{lo:98.4,la:7.9,name:'Пхукет',col:'#2a7a4a'},{lo:100.9,la:12.9,name:'Паттайя',col:'#2a7a4a'}],
 }
 
-// City dots for current period
-const CITIES = {
-  1700: [{ lon:100.5, lat:14.35, name:'Аюттхая ★', main:true }],
-  1767: [{ lon:100.5, lat:13.8,  name:'Руины Аюттхаи', col:'#c8622a' },{ lon:100.5,lat:13.5,name:'Тхонбури' }],
-  1782: [{ lon:100.5, lat:13.75, name:'Бангкок', main:true }],
-  1855: [{ lon:100.5, lat:13.75, name:'Бангкок', main:true }],
-  1893: [{ lon:100.5, lat:13.75, name:'Бангкок', main:true },{ lon:100.5,lat:14.2,name:'Канонерки!', col:'#c8622a' }],
-  1909: [{ lon:100.5, lat:13.75, name:'Бангкок', main:true }],
-  1932: [{ lon:100.5, lat:13.75, name:'Бангкок', main:true }],
-  1997: [{ lon:100.5, lat:13.75, name:'Бангкок', main:true },{ lon:98.4,lat:7.9,name:'Пхукет −50%',col:'#c8622a' }],
-  2026: [{ lon:100.5, lat:13.75, name:'Бангкок', main:true },{ lon:98.4,lat:7.9,name:'Пхукет',col:'#2a7a4a' },{ lon:100.9,lat:12.9,name:'Паттайя',col:'#2a7a4a' }],
-}
-
-function SiamMap({ period }) {
-  const W = 700, H = 500
-  const siamCoords = SIAM[period.year] || TH_MODERN_COORDS
-  const lostList = PERIOD_LOST[period.year] || []
-  const cities = CITIES[period.year] || []
-  const dc = period.dir === 'l' ? '#c8622a' : period.dir === 'g' ? '#2a7a4a' : '#b08c3a'
-
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width:'100%', display:'block', borderRadius:'12px 12px 0 0' }}>
-      {/* Ocean */}
-      <rect width={W} height={H} fill="#b8d8ea" />
-
-      {/* Gradient overlay for depth */}
-      <defs>
-        <linearGradient id="oceanG" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#9ecce0" />
-          <stop offset="100%" stopColor="#c8e4f0" />
-        </linearGradient>
-      </defs>
-      <rect width={W} height={H} fill="url(#oceanG)" />
-
-      {/* Neighbour countries */}
-      {SEA_COUNTRIES.map(c => (
-        <path key={c.id} d={ring2d(c.coords)} fill={c.fill} stroke="#a8c498" strokeWidth={0.8} />
-      ))}
-
-      {/* Country name labels */}
-      {LABELS.map(l => {
-        const [x,y] = proj(l.lon, l.lat)
-        const isWater = l.name.includes('залив') || l.name.includes('море')
-        return (
-          <text key={l.name} x={x} y={y}
-            textAnchor="middle" dominantBaseline="middle"
-            fontSize={isWater ? 9 : 11}
-            fontStyle={isWater ? 'italic' : 'normal'}
-            fontFamily="Georgia, serif"
-            fill={isWater ? '#5a8aaa' : '#3a5a2a'}
-            opacity={isWater ? 0.75 : 0.85}
-            style={{ pointerEvents:'none', userSelect:'none' }}
-          >{l.name}</text>
-        )
-      })}
-
-      {/* Modern Thailand border — always shown as thin dashed blue */}
-      <path
-        d={ring2d(TH_MODERN_COORDS)}
-        fill="none"
-        stroke="#4455bb"
-        strokeWidth={1.2}
-        strokeDasharray="5 3"
-        opacity={0.55}
-      />
-
-      {/* Lost territories */}
-      {lostList.map((lt, i) => (
-        <path key={i} d={ring2d(lt.coords)}
-          fill="#dd3311" fillOpacity={0.28}
-          stroke="#cc2200" strokeWidth={1.2}
-          strokeDasharray="5 3" strokeOpacity={0.65}
-        />
-      ))}
-
-      {/* Siam territory */}
-      <path
-        d={ring2d(siamCoords)}
-        fill="#e8a060"
-        fillOpacity={0.78}
-        stroke="#b06820"
-        strokeWidth={2.5}
-        strokeLinejoin="round"
-      />
-
-      {/* Cities & events */}
-      {cities.map((c, i) => {
-        const [x,y] = proj(c.lon, c.lat)
-        const col = c.col || (c.main ? '#1a3a6a' : '#2a7a4a')
-        const r = c.main ? 6 : 4
-        return (
+function SiamMap({period}){
+  const siam=HIST_SIAM[period.year]||COORDS_TH
+  const lost=HIST_LOST[period.year]||[]
+  const cities=HIST_CITIES[period.year]||[]
+  const dc=period.dir==='l'?'#c8622a':period.dir==='g'?'#2a7a4a':'#b08c3a'
+  const[tip,setTip]=useState(null)
+  return(
+    <div style={{position:'relative'}}>
+      <svg viewBox={`0 0 ${_W} ${_H}`} style={{width:'100%',display:'block',borderRadius:'12px 12px 0 0'}}>
+        <rect width={_W} height={_H} fill="#a8d0e8"/>
+        {NEIGHBOURS.map((n,i)=>(
+          <path key={i} d={toD(n.c)} fill={n.f} stroke={n.s} strokeWidth={0.8}/>
+        ))}
+        {NEIGHBOURS.map((n,i)=>{const[x,y]=px(n.lo,n.la);return(
+          <text key={i} x={x} y={y} textAnchor="middle" dominantBaseline="middle"
+            fontSize={11} fontFamily="Georgia,serif" fill="#3a5a2a" opacity={0.85}
+            style={{pointerEvents:'none',userSelect:'none'}}>{n.name}</text>
+        )})}
+        {[[96,10.5,'Бенгальский залив'],[103.5,8,'Сиамский залив']].map(([lo,la,nm])=>{const[x,y]=px(lo,la);return(
+          <text key={nm} x={x} y={y} textAnchor="middle" dominantBaseline="middle"
+            fontSize={9} fontStyle="italic" fontFamily="Georgia,serif" fill="#3a6888" opacity={0.7}
+            style={{pointerEvents:'none',userSelect:'none'}}>{nm}</text>
+        )})}
+        <path d={toD(COORDS_TH)} fill="none" stroke="#3355bb" strokeWidth={2}
+          strokeDasharray="7 3" opacity={0.65}
+          onMouseEnter={e=>setTip({x:e.clientX,y:e.clientY,t:'Современный Таиланд (для сравнения)'})}
+          onMouseLeave={()=>setTip(null)} style={{cursor:'default'}}/>
+        {lost.map((lt,i)=>(
+          <path key={i} d={toD(lt.c)} fill="#dd3311" fillOpacity={0.22}
+            stroke="#cc2200" strokeWidth={1.2} strokeDasharray="5 3" strokeOpacity={0.5}
+            onMouseEnter={e=>setTip({x:e.clientX,y:e.clientY,t:lt.name})}
+            onMouseLeave={()=>setTip(null)} style={{cursor:'default'}}/>
+        ))}
+        <path d={toD(siam)} fill="#e8a060" fillOpacity={0.72}
+          stroke="#b06820" strokeWidth={2.2} strokeLinejoin="round"
+          onMouseEnter={e=>setTip({x:e.clientX,y:e.clientY,t:`Сиам ${period.year} · ${period.km}`})}
+          onMouseLeave={()=>setTip(null)} style={{cursor:'default'}}/>
+        {cities.map((c,i)=>{const[x,y]=px(c.lo,c.la);const col=c.col||(c.main?'#1a3a6a':'#555');const r=c.main?6:4;return(
           <g key={i}>
-            <circle cx={x} cy={y} r={r+2} fill="white" opacity={0.6} />
-            <circle cx={x} cy={y} r={r} fill={col} stroke="white" strokeWidth={1.5} />
-            {c.main && <text x={x} y={y+2.5} textAnchor="middle" dominantBaseline="middle" fill="white" fontSize={7} fontWeight="bold">★</text>}
-            <text x={x + r + 5} y={y + 1}
-              dominantBaseline="middle"
-              fontSize={10} fontFamily="-apple-system,sans-serif"
-              fill="#1a1612"
+            <circle cx={x} cy={y} r={r+2} fill="white" opacity={0.45}/>
+            <circle cx={x} cy={y} r={r} fill={col} stroke="white" strokeWidth={1.5}/>
+            {c.main&&<text x={x} y={y+2} textAnchor="middle" dominantBaseline="middle" fill="white" fontSize={7} fontWeight="bold">★</text>}
+            <text x={x+r+4} y={y} dominantBaseline="middle" fontSize={10}
+              fontFamily="-apple-system,sans-serif" fill="#1a1612"
               stroke="white" strokeWidth={3} paintOrder="stroke"
-              style={{ pointerEvents:'none', userSelect:'none' }}
-            >{c.name}</text>
+              style={{pointerEvents:'none',userSelect:'none'}}>{c.name}</text>
           </g>
-        )
-      })}
-
-      {/* Legend */}
-      <rect x={W-170} y={10} width={158} height={82} rx={8} fill="white" fillOpacity={0.9} />
-      <rect x={W-160} y={21} width={11} height={8} rx={2} fill="#e8a060" fillOpacity={0.78} stroke="#b06820" strokeWidth={0.8} />
-      <text x={W-144} y={29} fontSize={10} fontFamily="-apple-system,sans-serif" fill="#333" dominantBaseline="middle">Территория Сиама</text>
-      <line x1={W-160} y1={43} x2={W-149} y2={43} stroke="#4455bb" strokeWidth={1.2} strokeDasharray="4 2" />
-      <text x={W-144} y={43} fontSize={10} fontFamily="-apple-system,sans-serif" fill="#333" dominantBaseline="middle">Совр. граница</text>
-      <rect x={W-160} y={52} width={11} height={8} rx={2} fill="#dd3311" fillOpacity={0.28} stroke="#cc2200" strokeWidth={0.8} />
-      <text x={W-144} y={56} fontSize={10} fontFamily="-apple-system,sans-serif" fill="#333" dominantBaseline="middle">Утраченные земли</text>
-      <circle cx={W-154} cy={72} r={5} fill="#1a3a6a" stroke="white" strokeWidth={1.2} />
-      <text x={W-144} y={72} fontSize={10} fontFamily="-apple-system,sans-serif" fill="#333" dominantBaseline="middle">Столица / событие</text>
-
-      {/* Era stamp */}
-      <rect x={10} y={10} width={170} height={42} rx={8} fill="white" fillOpacity={0.92} />
-      <text x={20} y={26} fontSize={13} fontWeight="600" fontFamily="Georgia,serif" fill="#1a1612">{period.year} — {period.label}</text>
-      <text x={20} y={42} fontSize={10} fontFamily="monospace" fill="#6a6460">{period.km} км² · {period.pct}% от пика</text>
-
-      {/* Change badge */}
-      {period.chg && (
-        <>
-          <rect x={188} y={10} width={70} height={24} rx={6} fill={dc} fillOpacity={0.15} stroke={dc} strokeWidth={1} strokeOpacity={0.4} />
-          <text x={223} y={22} textAnchor="middle" fontSize={11} fontWeight="600" fontFamily="monospace" fill={dc} dominantBaseline="middle">{period.chg}</text>
-        </>
-      )}
-    </svg>
+        )})}
+        <rect x={_W-172} y={10} width={162} height={86} rx={8} fill="white" fillOpacity={0.92}/>
+        <rect x={_W-163} y={21} width={11} height={8} rx={2} fill="#e8a060" fillOpacity={0.72} stroke="#b06820" strokeWidth={0.8}/>
+        <text x={_W-148} y={25} fontSize={10} fontFamily="-apple-system,sans-serif" fill="#333" dominantBaseline="middle">Территория Сиама</text>
+        <line x1={_W-163} y1={40} x2={_W-152} y2={40} stroke="#3355bb" strokeWidth={2} strokeDasharray="5 2"/>
+        <text x={_W-148} y={40} fontSize={10} fontFamily="-apple-system,sans-serif" fill="#333" dominantBaseline="middle">Современный Таиланд</text>
+        <rect x={_W-163} y={51} width={11} height={8} rx={2} fill="#dd3311" fillOpacity={0.22} stroke="#cc2200" strokeWidth={0.8}/>
+        <text x={_W-148} y={55} fontSize={10} fontFamily="-apple-system,sans-serif" fill="#333" dominantBaseline="middle">Утраченные земли</text>
+        <circle cx={_W-157} cy={72} r={5} fill="#1a3a6a" stroke="white" strokeWidth={1.2}/>
+        <text x={_W-148} y={72} fontSize={10} fontFamily="-apple-system,sans-serif" fill="#333" dominantBaseline="middle">Столица</text>
+        <rect x={10} y={10} width={175} height={42} rx={8} fill="white" fillOpacity={0.92}/>
+        <text x={20} y={26} fontSize={13} fontWeight="600" fontFamily="Georgia,serif" fill="#1a1612">{period.year} — {period.label}</text>
+        <text x={20} y={42} fontSize={10} fontFamily="monospace" fill="#6a6460">{period.km} · {period.pct}% от пика</text>
+        {period.chg&&(<><rect x={194} y={10} width={72} height={24} rx={6} fill={dc} fillOpacity={0.12} stroke={dc} strokeWidth={1} strokeOpacity={0.4}/><text x={230} y={22} textAnchor="middle" fontSize={11} fontWeight="600" fontFamily="monospace" fill={dc} dominantBaseline="middle">{period.chg}</text></>)}
+      </svg>
+      {tip&&(<div style={{position:'fixed',left:tip.x+12,top:tip.y-8,background:'rgba(26,22,18,0.88)',color:'#fff',fontFamily:'monospace',fontSize:11,padding:'5px 10px',borderRadius:6,pointerEvents:'none',zIndex:999,whiteSpace:'nowrap'}}>{tip.t}</div>)}
+    </div>
   )
 }
 
