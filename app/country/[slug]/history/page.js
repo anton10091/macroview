@@ -29,6 +29,8 @@ const GEO = {
 }
 
 // ─── Shared lost-territory rings ──────────────────────────────────────────
+const toFeat = (ring) => ({ type: 'Feature', geometry: { type: 'Polygon', coordinates: [ring] } })
+
 const MODERN     = [[99,5.7],[100.1,5.6],[101,6],[101.8,6.5],[102,7],[101.5,8],[101,9],[101.5,10],[102,11],[102.5,13],[103,14.5],[103.5,16],[103,18],[102.5,20],[102,21.5],[101,21],[100,20],[99,19],[98.5,17.5],[98.5,16],[97.5,15],[97.5,13.5],[98,11],[98,9],[98.5,7],[99,5.7]]
 const LOST_LAOS  = [[103.5,14],[104,15],[104.5,16.5],[105,18],[105.5,20],[105.5,22],[104.5,22.5],[103.5,22],[102.5,21],[102,21.5],[102.5,20],[103,18],[103.5,16],[103.5,14]]
 const LOST_CAMB  = [[103,12],[103.5,11.5],[104,11],[104.5,11.5],[105,12],[105,13],[104.5,14],[103.5,14],[103,13],[102.5,12.5],[103,12]]
@@ -185,7 +187,7 @@ const PERIODS = [
 function useD3Ready() {
   const [rdy, setRdy] = useState(false)
   useEffect(() => {
-    if (window.d3) { setRdy(true); return }
+    if (typeof window !== 'undefined' && window.d3) { setRdy(true); return }
     const s = document.createElement('script')
     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js'
     s.onload = () => setRdy(true)
@@ -202,10 +204,9 @@ function HistoricalMap({ period }) {
   const projRef = useRef(null)
   const pathRef = useRef(null)
 
-  const toFeat = (ring) => ({ type:'Feature', geometry:{ type:'Polygon', coordinates:[ring] } })
-
   const draw = useCallback((p) => {
     if (!svgRef.current || !projRef.current || !pathRef.current) return
+    if (typeof window === 'undefined' || !window.d3) return
     const d3 = window.d3
     const sv = d3.select(svgRef.current)
     const pf = pathRef.current
@@ -243,7 +244,7 @@ function HistoricalMap({ period }) {
   }, [])
 
   useEffect(() => {
-    if (inited.current || !contRef.current || !window.d3) return
+    if (inited.current || !contRef.current || typeof window === 'undefined' || !window.d3) return
     const d3 = window.d3
     const W = contRef.current.clientWidth || 660
     const H = Math.round(W * 0.65)
