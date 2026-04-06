@@ -70,6 +70,12 @@ export default function CountryPage() {
                 {tab.label}
               </a>
             ))}
+            <Link href={`/country/${params.slug}/history`} style={{
+              fontFamily: 'monospace', fontSize: 11, color: '#1a3a6a', padding: '10px 16px',
+              borderBottom: '2px solid #1a3a6a', textDecoration: 'none', whiteSpace: 'nowrap', fontWeight: 700,
+            }}>
+              🗺 История 1700–2026
+            </Link>
             <div style={{ width: 1, background: '#e8e2d8', margin: '4px 8px' }} />
             {DIRECTIONS.map(dir => (
               <Link key={dir.id} href={`/country/${params.slug}/${dir.path}`} style={{
